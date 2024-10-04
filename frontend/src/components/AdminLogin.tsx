@@ -10,7 +10,7 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
 
     // Örnek doğrulama
-    if (email === 'admin@example.com' && password === 'password123') {
+    if (email === 'admin@gmail.com' && password === '12345678') {
       navigate('/admin-dashboard'); // Başarılı girişte yönlendirme
     } else {
       alert('Geçersiz giriş bilgileri!');
