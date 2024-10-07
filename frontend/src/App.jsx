@@ -5,7 +5,7 @@ import AdminDashboard from './components/AdminDashboard'; // './pages' yerine '.
 import QuestionManagement from './components/QuestionManagement'; // './pages' yerine './components' kullanıldı
 import CandidateInterviews from './components/CandidateInterviews'; // './pages' yerine './components' kullanıldı
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <Routes>
