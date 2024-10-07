@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CandidateInterviews: React.FC = () => {
+const CandidateInterviews = () => {
   return (
     <div>
       <h2 className="text-2xl text-white mb-4">Aday Mülakatları</h2>

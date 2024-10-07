@@ -1,35 +1,20 @@
 import React, { useState } from 'react';
 
-// Soru Arayüzü
-interface Question {
-  id: number;
-  text: string;
-  duration: number; // Soru süresi
-}
-
-// Soru Paketi Arayüzü
-interface QuestionPackage {
-  id: number;
-  title: string;
-  questions: Question[];
-}
-
-// Soru Yönetimi Bileşeni
-const QuestionManagement: React.FC = () => {
-  const [questionPackages, setQuestionPackages] = useState<QuestionPackage[]>([]);
+const QuestionManagement = () => {
+  const [questionPackages, setQuestionPackages] = useState([]);
   const [newPackageTitle, setNewPackageTitle] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [currentPackage, setCurrentPackage] = useState<QuestionPackage | null>(null);
-  const [expandedPackages, setExpandedPackages] = useState<number[]>([]); // Açık/kapalı paketleri tutar
+  const [currentPackage, setCurrentPackage] = useState(null);
+  const [expandedPackages, setExpandedPackages] = useState([]); // Açık/kapalı paketleri tutar
   const [newQuestionText, setNewQuestionText] = useState('');
-  const [newQuestionDuration, setNewQuestionDuration] = useState<number>(1);
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [newQuestionDuration, setNewQuestionDuration] = useState(1);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
 
   // Soru Paketi Ekleme
   const addQuestionPackage = () => {
     if (newPackageTitle.trim() === '') return;
 
-    const newPackage: QuestionPackage = {
+    const newPackage = {
       id: questionPackages.length + 1,
       title: newPackageTitle,
       questions: [],
@@ -48,11 +33,13 @@ const QuestionManagement: React.FC = () => {
     if (currentQuestion) {
       // Mevcut soruyu güncelleme
       updatedPackage.questions = updatedPackage.questions.map((q) =>
-        q.id === currentQuestion.id ? { ...q, text: newQuestionText, duration: newQuestionDuration } : q
+        q.id === currentQuestion.id
+          ? { ...q, text: newQuestionText, duration: newQuestionDuration }
+          : q
       );
     } else {
       // Yeni soru ekleme
-      const newQuestion: Question = {
+      const newQuestion = {
         id: updatedPackage.questions.length + 1,
         text: newQuestionText,
         duration: newQuestionDuration,
@@ -61,7 +48,9 @@ const QuestionManagement: React.FC = () => {
     }
 
     setQuestionPackages(
-      questionPackages.map((pkg) => (pkg.id === updatedPackage.id ? updatedPackage : pkg))
+      questionPackages.map((pkg) =>
+        pkg.id === updatedPackage.id ? updatedPackage : pkg
+      )
     );
     setNewQuestionText('');
     setNewQuestionDuration(1);
@@ -69,7 +58,7 @@ const QuestionManagement: React.FC = () => {
   };
 
   // Paket Aç/Kapat
-  const togglePackage = (pkgId: number) => {
+  const togglePackage = (pkgId) => {
     if (expandedPackages.includes(pkgId)) {
       setExpandedPackages(expandedPackages.filter((id) => id !== pkgId));
     } else {
@@ -78,7 +67,7 @@ const QuestionManagement: React.FC = () => {
   };
 
   // Soru Paketini Seç ve Düzenleme Modülünü Göster
-  const openEditModal = (pkg: QuestionPackage, question?: Question) => {
+  const openEditModal = (pkg, question) => {
     setCurrentPackage(pkg);
     if (question) {
       setCurrentQuestion(question);
@@ -96,7 +85,7 @@ const QuestionManagement: React.FC = () => {
     <div>
       <h2 className="text-2xl text-white mb-4">Soru Yönetimi</h2>
       <p className="text-gray-300">Burada mülakatta kullanılacak soru paketlerini düzenleyebilirsin.</p>
-      
+
       {/* Yeni Soru Paketi Ekleme Alanı */}
       <div className="flex mb-4">
         <input
@@ -106,10 +95,7 @@ const QuestionManagement: React.FC = () => {
           value={newPackageTitle}
           onChange={(e) => setNewPackageTitle(e.target.value)}
         />
-        <button
-          onClick={addQuestionPackage}
-          className="bg-blue-500 text-white rounded p-2"
-        >
+        <button onClick={addQuestionPackage} className="bg-blue-500 text-white rounded p-2">
           +
         </button>
       </div>
@@ -118,10 +104,7 @@ const QuestionManagement: React.FC = () => {
       <div className="space-y-4">
         {questionPackages.map((pkg) => (
           <div key={pkg.id} className="bg-gray-800 p-4 rounded-md">
-            <h3
-              className="text-xl text-white cursor-pointer"
-              onClick={() => togglePackage(pkg.id)}
-            >
+            <h3 className="text-xl text-white cursor-pointer" onClick={() => togglePackage(pkg.id)}>
               {pkg.title}
             </h3>
 
@@ -142,10 +125,7 @@ const QuestionManagement: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => openEditModal(pkg)}
-                  className="bg-green-500 text-white rounded p-2"
-                >
+                <button onClick={() => openEditModal(pkg)} className="bg-green-500 text-white rounded p-2">
                   Soru Ekle
                 </button>
               </div>
@@ -176,16 +156,10 @@ const QuestionManagement: React.FC = () => {
               onChange={(e) => setNewQuestionDuration(Number(e.target.value))}
             />
             <div className="flex justify-between">
-              <button
-                onClick={saveQuestion}
-                className="bg-blue-500 text-white rounded p-2"
-              >
+              <button onClick={saveQuestion} className="bg-blue-500 text-white rounded p-2">
                 {currentQuestion ? 'Kaydet' : 'Ekle'}
               </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-red-500 text-white rounded p-2"
-              >
+              <button onClick={() => setShowModal(false)} className="bg-red-500 text-white rounded p-2">
                 Kapat
               </button>
             </div>
