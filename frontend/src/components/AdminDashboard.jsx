@@ -1,59 +1,43 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
-const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    // Örnek doğrulama
-    if (email === 'a@a.com' && password === '123') {
-      navigate('/admin-dashboard'); // Başarılı girişte yönlendirme
-    } else {
-      alert('Geçersiz giriş bilgileri!');
-    }
-  };
+const AdminDashboard = () => {
+  const [activeMenu, setActiveMenu] = useState('questions');
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <form className="bg-white p-6 rounded shadow-md w-80" onSubmit={handleLogin}>
-        <h2 className="text-lg font-bold mb-4">Admin Log in Page</h2>
-        
-        <label className="block mb-2">
-          <span className="text-gray-700">Email</span>
-          <input
-            type="email"
-            className="mt-1 block w-full border border-gray-300 rounded p-2"
-            placeholder="admin@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
-        
-        <label className="block mb-4">
-          <span className="text-gray-700">Password</span>
-          <input
-            type="password"
-            className="mt-1 block w-full border border-gray-300 rounded p-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </label>
+    <div className="flex bg-gray-800 min-h-screen">
+      {/* Sol Menü */}
+      <div className="w-64 bg-gray-900 p-4">
+        <h1 className="text-white text-2xl mb-4">Admin Paneli</h1>
+        <ul className="space-y-2">
+          <li>
+            <Link
+              to="/admin-dashboard/questions"
+              className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'questions' ? 'bg-gray-700' : 'text-gray-400'}`}
+              onClick={() => setActiveMenu('questions')}
+            >
+              Soru Yönetimi
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/admin-dashboard/interviews"
+              className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'interviews' ? 'bg-gray-700' : 'text-gray-400'}`}
+              onClick={() => setActiveMenu('interviews')}
+            >
+              Aday Mülakatları
+            </Link>
+          </li>
+        </ul>
+      </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Log in
-        </button>
-      </form>
+      {/* Sağ İçerik Alanı */}
+      <div className="flex-1 p-8">
+        <h1 className="text-3xl text-white">Hoş Geldin!</h1>
+        <Outlet />
+      </div>
     </div>
   );
 };
 
-export default AdminLogin;
+export default AdminDashboard;
