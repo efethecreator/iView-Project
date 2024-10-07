@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    './index.html',          // Ana HTML dosyan
-    './src/**/*.{js,ts,jsx,tsx}',  // React componentlerinin bulunduğu dizin
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {},
