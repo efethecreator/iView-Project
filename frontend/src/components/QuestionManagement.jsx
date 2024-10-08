@@ -81,6 +81,25 @@ const QuestionManagement = () => {
     setShowModal(true);
   };
 
+  // Soru Paketini Silme
+  const deleteQuestionPackage = (pkgId) => {
+    setQuestionPackages(questionPackages.filter((pkg) => pkg.id !== pkgId));
+  };
+
+  // Soruyu Silme
+  const deleteQuestion = (pkgId, questionId) => {
+    const updatedPackages = questionPackages.map((pkg) => {
+      if (pkg.id === pkgId) {
+        return {
+          ...pkg,
+          questions: pkg.questions.filter((question) => question.id !== questionId),
+        };
+      }
+      return pkg;
+    });
+    setQuestionPackages(updatedPackages);
+  };
+
   return (
     <div>
       <h2 className="text-2xl text-white mb-4">Soru Yönetimi</h2>
@@ -104,9 +123,20 @@ const QuestionManagement = () => {
       <div className="space-y-4">
         {questionPackages.map((pkg) => (
           <div key={pkg.id} className="bg-gray-800 p-4 rounded-md">
-            <h3 className="text-xl text-white cursor-pointer" onClick={() => togglePackage(pkg.id)}>
-              {pkg.title}
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl text-white cursor-pointer" onClick={() => togglePackage(pkg.id)}>
+                {pkg.title}
+              </h3>
+              {/* Eğer paket açılmamışsa "Delete" butonunu göster */}
+              {!expandedPackages.includes(pkg.id) && (
+                <button
+                  onClick={() => deleteQuestionPackage(pkg.id)}
+                  className="bg-red-500 text-white rounded p-1 ml-2"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
 
             {/* Soru Paketi İçeriği (Açık olan paketlerde gösterilecek) */}
             {expandedPackages.includes(pkg.id) && (
@@ -116,12 +146,20 @@ const QuestionManagement = () => {
                   {pkg.questions.map((question) => (
                     <li key={question.id} className="text-gray-300 flex justify-between">
                       <span>{question.text} (Süre: {question.duration} dakika)</span>
-                      <button
-                        onClick={() => openEditModal(pkg, question)}
-                        className="bg-yellow-500 text-white rounded p-1 ml-2"
-                      >
-                        Düzenle
-                      </button>
+                      <div>
+                        <button
+                          onClick={() => openEditModal(pkg, question)}
+                          className="bg-yellow-500 text-white rounded p-1 ml-2"
+                        >
+                          Düzenle
+                        </button>
+                        <button
+                          onClick={() => deleteQuestion(pkg.id, question.id)}
+                          className="bg-red-500 text-white rounded p-1 ml-2"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('questions');
+  const location = useLocation(); // Mevcut URL'yi almak için useLocation kullanıyoruz
+
+  const isHomePage = location.pathname === '/admin-dashboard'; // Ana sayfa kontrolü
 
   return (
     <div className="flex bg-gray-800 min-h-screen">
       {/* Sol Menü */}
       <div className="w-64 bg-gray-900 p-4">
-        <h1 className="text-white text-2xl mb-4">Admin Paneli</h1>
+        <h1 className="text-white text-2xl mb-4">iView Admin Panel</h1>
         <ul className="space-y-2">
           <li>
             <Link
@@ -33,7 +36,7 @@ const AdminDashboard = () => {
 
       {/* Sağ İçerik Alanı */}
       <div className="flex-1 p-8">
-        <h1 className="text-3xl text-white">Hoş Geldin!</h1>
+        {isHomePage && <h1 className="text-3xl text-white">Hoş Geldin!</h1>} {/* Ana sayfada göster */}
         <Outlet />
       </div>
     </div>
