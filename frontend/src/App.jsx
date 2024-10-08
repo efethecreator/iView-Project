@@ -4,6 +4,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import QuestionManagement from './components/QuestionManagement';
 import CandidateInterviews from './components/CandidateInterviews';
+import VideoCollection from './components/VideoCollection';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="interviews" element={<CandidateInterviews />} />
           <Route path="interview-list" element={<interviewList />} /> {/* Yeni rota eklendi */}
         </Route>
+        <Route path="/interviews/videos/:position" element={<VideoCollection />} />
       </Routes>
     </Router>
   );
