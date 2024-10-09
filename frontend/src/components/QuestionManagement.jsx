@@ -102,7 +102,7 @@ const QuestionManagement = () => {
 
   return (
     <div>
-      <h2 className="text-2xl text-white mb-4">Soru Yönetimi</h2>
+      <h2 className="text-2xl text-white mb-4">Manage Question Package</h2>
       <p className="text-gray-300">Burada mülakatta kullanılacak soru paketlerini düzenleyebilirsin.</p>
 
       {/* Yeni Soru Paketi Ekleme Alanı */}

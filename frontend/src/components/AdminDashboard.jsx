@@ -19,7 +19,7 @@ const AdminDashboard = () => {
               className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'questions' ? 'bg-gray-700' : 'text-gray-400'}`}
               onClick={() => setActiveMenu('questions')}
             >
-              Soru Yönetimi
+              Manage Question Package
             </Link>
           </li>
           <li>
@@ -28,7 +28,7 @@ const AdminDashboard = () => {
               className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'interviews' ? 'bg-gray-700' : 'text-gray-400'}`}
               onClick={() => setActiveMenu('interviews')}
             >
-              Aday Mülakatları
+              Interview List
             </Link>
           </li>
         </ul>
