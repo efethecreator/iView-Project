@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/AdminLayout';
-import QuestionManagement from './pages/QuestionManagement';
+import QuestionManagement from './components/QuestionManagement';
 import CandidateInterviews from './pages/CandidateInterviews';
 import VideoCollection from './components/VideoCollection';
 
