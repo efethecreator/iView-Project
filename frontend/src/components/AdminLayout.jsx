@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import { useState } from 'react';
 
-const AdminDashboard = () => {
+const AdminLayout = () => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/admin-dashboard';
   const [activeMenu, setActiveMenu] = useState('questions');
-  const location = useLocation(); // Mevcut URL'yi almak için useLocation kullanıyoruz
-
-  const isHomePage = location.pathname === '/admin-dashboard'; // Ana sayfa kontrolü
 
   return (
     <div className="flex bg-gray-800 min-h-screen">
@@ -34,13 +33,13 @@ const AdminDashboard = () => {
         </ul>
       </div>
 
-      {/* Sağ İçerik Alanı */}
+      {/* İçerik Alanı */}
       <div className="flex-1 p-8">
-        {isHomePage && <h1 className="text-3xl text-white">Hoş Geldin!</h1>} {/* Ana sayfada göster */}
+        {isHomePage && <h1 className="text-3xl text-white">Hoş Geldin!</h1>}
         <Outlet />
       </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default AdminLayout;
