@@ -1,3 +1,5 @@
+// adminDashboard
+
 import React from 'react';
 
 const Button = ({ label }) => {

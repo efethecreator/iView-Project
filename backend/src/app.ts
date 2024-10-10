@@ -1,8 +1,10 @@
 import express, { Application, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+dotenv.config();
 import cors from 'cors'; // Import CORS
 import questionPackageRoutes from './routes/QuestionPackageRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -26,6 +28,7 @@ mongoose.connect(mongoUrl)
 
 // API Routes
 app.use('/api', questionPackageRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic route for testing
 app.get('/', (req: Request, res: Response) => {

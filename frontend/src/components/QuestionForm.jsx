@@ -1,3 +1,5 @@
+// questionForm
+
 import React from 'react';
 
 const QuestionForm = ({ newQuestionText, setNewQuestionText, newQuestionDuration, setNewQuestionDuration, saveQuestion, setShowModal, currentQuestion }) => {

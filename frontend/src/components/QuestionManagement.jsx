@@ -1,3 +1,5 @@
+// manageQuestions
+
 import React, { useState } from 'react';
 import QuestionForm from './QuestionForm';
 import QuestionPackage from './QuestionPackage';

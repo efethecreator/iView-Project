@@ -20,8 +20,10 @@ const useQuestionStore = create((set) => ({
   // Create a new question package
   createQuestionPackage: async (title) => {
     set({ loading: true });
+    console.log("deneme")
     try {
       const response = await axios.post('http://localhost:8000/api/packages', { title });
+      console.log("deneme1")
       set((state) => ({
         questionPackages: [...state.questionPackages, response.data],
         loading: false,
