@@ -1,11 +1,11 @@
-// manageQuestions
-
 import React, { useState } from 'react';
 import QuestionForm from './QuestionForm';
 import QuestionPackage from './QuestionPackage';
+import useQuestionStore from '../store/questionStore';
+
 
 const QuestionManagement = () => {
-  const [questionPackages, setQuestionPackages] = useState([]);
+  const { questionPackages, createQuestionPackage, addQuestionToPackage, deleteQuestionPackage, deleteQuestionFromPackage } = useQuestionStore();
   const [newPackageTitle, setNewPackageTitle] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [currentPackage, setCurrentPackage] = useState(null);
@@ -14,86 +14,32 @@ const QuestionManagement = () => {
   const [newQuestionDuration, setNewQuestionDuration] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(null);
 
-  const addQuestionPackage = () => {
+  const addQuestionPackage = async () => {
     if (newPackageTitle.trim() === '') return;
-
-    const newPackage = {
-      id: questionPackages.length + 1,
-      title: newPackageTitle,
-      questions: [],
-    };
-
-    setQuestionPackages([...questionPackages, newPackage]);
+    await createQuestionPackage(newPackageTitle);
     setNewPackageTitle('');
   };
 
-  const saveQuestion = () => {
+  const saveQuestion = async () => {
     if (!currentPackage || newQuestionText.trim() === '') return;
-
-    let updatedPackage = { ...currentPackage };
-
-    if (currentQuestion) {
-      updatedPackage.questions = updatedPackage.questions.map((q) =>
-        q.id === currentQuestion.id
-          ? { ...q, text: newQuestionText, duration: newQuestionDuration }
-          : q
-      );
-    } else {
-      const newQuestion = {
-        id: updatedPackage.questions.length + 1,
-        text: newQuestionText,
-        duration: newQuestionDuration,
-      };
-      updatedPackage.questions = [...updatedPackage.questions, newQuestion];
-    }
-
-    setQuestionPackages(
-      questionPackages.map((pkg) =>
-        pkg.id === updatedPackage.id ? updatedPackage : pkg
-      )
-    );
+    await addQuestionToPackage(currentPackage._id, newQuestionText, newQuestionDuration);
     setNewQuestionText('');
     setNewQuestionDuration(1);
     setShowModal(false);
   };
 
   const togglePackage = (pkgId) => {
-    if (expandedPackages.includes(pkgId)) {
-      setExpandedPackages(expandedPackages.filter((id) => id !== pkgId));
-    } else {
-      setExpandedPackages([...expandedPackages, pkgId]);
-    }
+    setExpandedPackages((prev) =>
+      prev.includes(pkgId) ? prev.filter((id) => id !== pkgId) : [...prev, pkgId]
+    );
   };
 
-  const openEditModal = (pkg, question) => {
+  const openEditModal = (pkg, question = null) => {
     setCurrentPackage(pkg);
-    if (question) {
-      setCurrentQuestion(question);
-      setNewQuestionText(question.text);
-      setNewQuestionDuration(question.duration);
-    } else {
-      setCurrentQuestion(null);
-      setNewQuestionText('');
-      setNewQuestionDuration(1);
-    }
+    setCurrentQuestion(question);
+    setNewQuestionText(question ? question.text : '');
+    setNewQuestionDuration(question ? question.duration : 1);
     setShowModal(true);
-  };
-
-  const deleteQuestionPackage = (pkgId) => {
-    setQuestionPackages(questionPackages.filter((pkg) => pkg.id !== pkgId));
-  };
-
-  const deleteQuestion = (pkgId, questionId) => {
-    const updatedPackages = questionPackages.map((pkg) => {
-      if (pkg.id === pkgId) {
-        return {
-          ...pkg,
-          questions: pkg.questions.filter((question) => question.id !== questionId),
-        };
-      }
-      return pkg;
-    });
-    setQuestionPackages(updatedPackages);
   };
 
   return (
@@ -116,27 +62,27 @@ const QuestionManagement = () => {
 
       <div className="space-y-4">
         {questionPackages.map((pkg) => (
-          <QuestionPackage 
-            key={pkg.id} 
-            pkg={pkg} 
-            expandedPackages={expandedPackages} 
-            togglePackage={togglePackage} 
-            openEditModal={openEditModal} 
-            deleteQuestion={deleteQuestion} 
-            deleteQuestionPackage={deleteQuestionPackage} 
+          <QuestionPackage
+            key={pkg._id}
+            pkg={pkg}
+            expandedPackages={expandedPackages}
+            togglePackage={togglePackage}
+            openEditModal={openEditModal}
+            deleteQuestion={deleteQuestionFromPackage}
+            deleteQuestionPackage={deleteQuestionPackage}
           />
         ))}
       </div>
 
       {showModal && (
-        <QuestionForm 
-          newQuestionText={newQuestionText} 
-          setNewQuestionText={setNewQuestionText} 
-          newQuestionDuration={newQuestionDuration} 
-          setNewQuestionDuration={setNewQuestionDuration} 
-          saveQuestion={saveQuestion} 
-          setShowModal={setShowModal} 
-          currentQuestion={currentQuestion} 
+        <QuestionForm
+          newQuestionText={newQuestionText}
+          setNewQuestionText={setNewQuestionText}
+          newQuestionDuration={newQuestionDuration}
+          setNewQuestionDuration={setNewQuestionDuration}
+          saveQuestion={saveQuestion}
+          setShowModal={setShowModal}
+          currentQuestion={currentQuestion}
         />
       )}
     </div>

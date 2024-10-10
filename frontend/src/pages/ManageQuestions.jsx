@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import QuestionManagement from '../components/QuestionManagement';
-import { Link } from 'react-router-dom'; // Eğer routing kullanıyorsanız
+import useQuestionStore from '../stores/useQuestionStore';
+import { Link } from 'react-router-dom';
 
 const ManageQuestions = () => {
-  const [activeMenu, setActiveMenu] = useState('questions');
+  const fetchQuestionPackages = useQuestionStore((state) => state.fetchQuestionPackages);
+
+  useEffect(() => {
+    fetchQuestionPackages();
+  }, [fetchQuestionPackages]);
 
   return (
     <div className="flex">
@@ -13,18 +18,15 @@ const ManageQuestions = () => {
           <li>
             <Link
               to="/admin-dashboard/questions"
-              className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'questions' ? 'bg-gray-700' : 'text-gray-400'}`}
-              onClick={() => setActiveMenu('questions')}
+              className="block p-2 rounded hover:bg-gray-700 text-gray-400"
             >
               Manage Question Package
             </Link>
           </li>
-          {/* Diğer menü öğeleri buraya eklenebilir */}
         </ul>
       </div>
 
       <div className="flex-grow p-4">
-        {/* QuestionManagement componentini burada render ediyoruz */}
         <QuestionManagement />
       </div>
     </div>

@@ -12,6 +12,8 @@ const useAdminLoginStore = create((set) => ({
       const response = await axios.post('http://localhost:8000/api/admin/login', {
         email,
         password,
+      }, {
+        withCredentials: true, // Cookieleri iletmek için gerekli
       });
       
       // Eğer başarılı giriş olursa, admin dashboard'a yönlendirme yap

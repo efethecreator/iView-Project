@@ -12,7 +12,7 @@ class AdminController {
         // Cookie'ye token'ı ekle
         res.cookie('token', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // Sadece production ortamında secure
+          secure: false, // Sadece production ortamında secure
           sameSite: 'strict',
           maxAge: 60 * 60 * 1000, // 1 saat
         });

@@ -20,10 +20,11 @@ const useQuestionStore = create((set) => ({
   // Create a new question package
   createQuestionPackage: async (title) => {
     set({ loading: true });
-    console.log("deneme")
+    console.log("title");
     try {
       const response = await axios.post('http://localhost:8000/api/packages', { title });
-      console.log("deneme1")
+      console.log(response.data);
+      console.log("deneme");
       set((state) => ({
         questionPackages: [...state.questionPackages, response.data],
         loading: false,
@@ -51,6 +52,36 @@ const useQuestionStore = create((set) => ({
       set({ error: error.response?.data?.message || error.message, loading: false });
     }
   },
+
+  // Delete a question package
+  deleteQuestionPackage: async (packageId) => {
+    set({ loading: true });
+    try {
+      await axios.delete(`http://localhost:8000/api/packages/${packageId}`);
+      set((state) => ({
+        questionPackages: state.questionPackages.filter((pkg) => pkg._id !== packageId),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: error.response?.data?.message || error.message, loading: false });
+    }
+  },
+
+  // Delete a question from a package
+  deleteQuestionFromPackage: async (packageId, questionId) => {
+    set({ loading: true });
+    try {
+      const response = await axios.delete(`http://localhost:8000/api/packages/${packageId}/questions/${questionId}`);
+      set((state) => ({
+        questionPackages: state.questionPackages.map((pkg) =>
+          pkg._id === packageId ? response.data : pkg
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ error: error.response?.data?.message || error.message, loading: false });
+    }
+  }
 }));
 
 export default useQuestionStore;
