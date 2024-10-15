@@ -25,7 +25,7 @@ const QuestionPackage = ({ pkg, expandedPackages, togglePackage, openEditModal, 
           <ul className="list-disc list-inside mb-2">
             {pkg.questions.map((question) => (
               <li key={question.id} className="text-gray-300 flex justify-between">
-                <span>{question.text} (Süre: {question.duration} dakika)</span>
+                <span>{question.question} (Süre: {question.time} dakika)</span>
                 <div>
                   <button
                     onClick={() => openEditModal(pkg, question)}

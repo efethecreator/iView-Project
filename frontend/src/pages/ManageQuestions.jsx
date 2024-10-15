@@ -4,7 +4,8 @@ import useQuestionStore from '../stores/useQuestionStore';
 import { Link } from 'react-router-dom';
 
 const ManageQuestions = () => {
-  const fetchQuestionPackages = useQuestionStore((state) => state.fetchQuestionPackages);
+  const [fetchQuestionPackages, questionPackages] = useQuestionStore();
+  
 
   useEffect(() => {
     fetchQuestionPackages();
@@ -23,6 +24,20 @@ const ManageQuestions = () => {
               Manage Question Package
             </Link>
           </li>
+        </ul>
+
+        <h2 className="text-2xl text-white">Question Packages</h2>
+        <ul className="space-y-2">
+          {questionPackages.map((pkg) => (
+            <li key={pkg.id}>
+              <Link
+                to={`/admin-dashboard/questions/${pkg.id}`}
+                className="block p-2 rounded hover:bg-gray-700 text-gray-400"
+              >
+                {pkg.question}
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
 
