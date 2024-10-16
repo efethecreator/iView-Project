@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import QuestionManagement from "../components/QuestionManagement";
-import useQuestionStore from "../stores/useQuestionStore";
+import QuestionManagement from "../components/QuestionManagement"; // Ensure this path is correct and the component is properly defined
+import useQuestionStore from "../stores/useQuestionStore"; // Ensure this path is correct and the store is properly set up
 import { Link } from "react-router-dom";
 
 const ManageQuestions = () => {

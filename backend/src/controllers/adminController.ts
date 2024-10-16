@@ -6,7 +6,7 @@ class AdminController {
     const { email, password } = req.body;
 
     try {
-      const token = await authenticateAdmin(email, password);
+      const token = authenticateAdmin(email, password);
 
       if (token) {
         // Cookie'ye token'ı ekle

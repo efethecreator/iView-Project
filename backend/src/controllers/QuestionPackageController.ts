@@ -34,7 +34,7 @@ export const addQuestion = async (req: Request, res: Response) => {
 };
 
 // Tüm soru paketlerini listeleme
-export const getAllPackages = async (req: Request, res: Response) => {
+export const getAllPackages = async (_: Request, res: Response) => {
     try {
         const packages = await questionPackageService.getAllPackages();
          res.status(200).json(packages);
