@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPackage, addQuestion, getAllPackages, getPackageById, deletePackage } from '../controllers/QuestionPackageController';
+import { createPackage, addQuestion, getAllPackages, getPackageById, deletePackage, updatePackage } from '../controllers/QuestionPackageController';
 
 const router = Router();
 
@@ -14,6 +14,9 @@ router.get('/packages', getAllPackages);
 
 // Tek bir soru paketini getirme
 router.get('/packages/:packageId', getPackageById);
+
+// Soru paketini güncelleme
+router.put('/packages/:packageId', updatePackage);
 
 // Soru paketini silme
 router.delete('/packages/:packageId', deletePackage);

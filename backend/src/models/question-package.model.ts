@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+
 // Interface for a question
-interface Question {
+export interface Question {
     question: string;
     time: number;
 }

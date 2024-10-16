@@ -11,7 +11,6 @@ const ManagePackage = () => {
   const [newQuestion, setNewQuestion] = useState("");
   const [newTime, setNewTime] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
   useEffect(() => {
     const selectedPackage = questionPackages.find((pkg) => pkg._id === packageId);
     if (selectedPackage) {
@@ -69,7 +68,7 @@ const ManagePackage = () => {
               {packageData.questions.map((question, index) => (
                 <tr key={question._id}>
                   <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">{question.text}</td>
+                  <td className="border px-4 py-2">{question.question}</td>
                   <td className="border px-4 py-2">{question.time}</td>
                   <td className="border px-4 py-2">
                     <button className="bg-red-500 text-white rounded px-2 py-1">Delete</button>

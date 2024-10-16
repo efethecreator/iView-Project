@@ -1,4 +1,4 @@
-import { QuestionPackageModel , QuestionPackage} from '../models/question-package.model'; // Şemanın bulunduğu yer
+import { QuestionPackageModel, QuestionPackage, Question } from '../models/question-package.model'; // Şemanın bulunduğu yer
 
 class QuestionPackageService {
     // Soru paketi oluşturma
@@ -31,7 +31,6 @@ class QuestionPackageService {
         return deletedPackage; // Eğer silinemezse null döner
     }
 
-
     // Tüm soru paketlerini listeleme
     async getAllPackages(): Promise<QuestionPackage[]> {
         return await QuestionPackageModel.find();
@@ -40,6 +39,26 @@ class QuestionPackageService {
     // Tek bir soru paketini getirme
     async getPackageById(packageId: string): Promise<QuestionPackage | null> {
         return await QuestionPackageModel.findById(packageId);
+    }
+
+    // Soru paketini güncelleme
+    async updatePackage(packageId: string, title?: string, questions?: Question[]): Promise<QuestionPackage | null> {
+        const questionPackage = await QuestionPackageModel.findById(packageId);
+        if (!questionPackage) {
+            throw new Error('Question package not found');
+        }
+
+        // Gelen verilerle güncellemeyi gerçekleştir
+        if (title) {
+            questionPackage.title = title;
+        }
+        if (questions) {
+            questionPackage.questions = questions;
+            questionPackage.questionCount = questions.length; // Soru sayısını günceller
+        }
+
+        // Güncellenmiş paketi kaydet ve geri döndür
+        return await questionPackage.save();
     }
 }
 

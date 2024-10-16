@@ -66,6 +66,26 @@ export const getPackageById = async (req: Request, res: Response) => {
     }
 };
 
+// Soru paketini güncelleme
+export const updatePackage = async (req: Request, res: Response) => {
+    try {
+        const { packageId } = req.params; // Güncellenecek paket ID'si
+        const { title, questions } = req.body; // Güncellenmiş başlık ve sorular
+
+        // Service katmanında güncelleme fonksiyonu çağrılır
+        const updatedPackage = await questionPackageService.updatePackage(packageId, title, questions);
+        if (!updatedPackage) {
+             res.status(404).json({ message: 'Question package not found' });
+        }
+         res.status(200).json(updatedPackage); // Güncellenmiş paketi geri döner
+    } catch (error) {
+        if (error instanceof Error) {
+             res.status(500).json({ message: error.message });
+        }
+         res.status(500).json({ message: 'An unknown error occurred' });
+    }
+};
+
 // Soru paketini silme
 // Soru paketini silme
 export const deletePackage = async (req: Request, res: Response) => {
@@ -83,4 +103,8 @@ export const deletePackage = async (req: Request, res: Response) => {
              res.status(500).json({ message: 'An unknown error occurred' });
         }
     }
+
+    
+
+    
 };
