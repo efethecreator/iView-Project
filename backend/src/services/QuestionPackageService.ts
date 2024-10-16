@@ -25,6 +25,13 @@ class QuestionPackageService {
         return await questionPackage.save();
     }
 
+    // Soru paketini silme
+    async deletePackage(packageId: string): Promise<QuestionPackage | null> {
+        const deletedPackage = await QuestionPackageModel.findByIdAndDelete(packageId);
+        return deletedPackage; // Eğer silinemezse null döner
+    }
+
+
     // Tüm soru paketlerini listeleme
     async getAllPackages(): Promise<QuestionPackage[]> {
         return await QuestionPackageModel.find();

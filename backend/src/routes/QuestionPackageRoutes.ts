@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPackage, addQuestion, getAllPackages, getPackageById } from '../controllers/QuestionPackageController';
+import { createPackage, addQuestion, getAllPackages, getPackageById, deletePackage } from '../controllers/QuestionPackageController';
 
 const router = Router();
 
@@ -14,5 +14,8 @@ router.get('/packages', getAllPackages);
 
 // Tek bir soru paketini getirme
 router.get('/packages/:packageId', getPackageById);
+
+// Soru paketini silme
+router.delete('/packages/:packageId', deletePackage);
 
 export default router;
