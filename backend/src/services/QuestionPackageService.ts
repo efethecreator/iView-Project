@@ -1,14 +1,30 @@
-import { QuestionPackageModel, QuestionPackage, Question } from '../models/question-package.model'; // Şemanın bulunduğu yer
+import { QuestionPackageModel, QuestionPackage, Question, } from '../models/question-package.model'; // Şemanın bulunduğu yer
+import mongoose, { Types } from 'mongoose';
 
 class QuestionPackageService {
     // Soru paketi oluşturma
     async createQuestionPackage(title: string): Promise<QuestionPackage> {
         const newPackage = new QuestionPackageModel({
             title,
-            questionCount: 0, // Başlangıçta 0
+            questionCount: 0,
             questions: [],
         });
         return await newPackage.save();
+    }
+
+    async deleteQuestionFromPackage(packageId: string, questionId: string): Promise<QuestionPackage | null> {
+        const questionPackage = await QuestionPackageModel.findById(packageId);
+        if (!questionPackage) {
+            throw new Error('Question package not found');
+        }
+    
+        // Soru listesinde filtreleme yaparak soruyu çıkar
+        questionPackage.questions = questionPackage.questions.filter(
+            (question) => question._id.toString() !== questionId
+        );
+        questionPackage.questionCount = questionPackage.questions.length;
+    
+        return await questionPackage.save();
     }
 
     // Soru ekleme
@@ -17,11 +33,11 @@ class QuestionPackageService {
         if (!questionPackage) {
             throw new Error('Question package not found');
         }
-
-        // Yeni soruyu ekle
-        questionPackage.questions.push({ question, time });
+    
+        // Yeni soruya manuel olarak _id ekleyin
+        questionPackage.questions.push({ _id: new Types.ObjectId(), question, time });
         questionPackage.questionCount = questionPackage.questions.length; // Soru sayısını güncelle
-
+    
         return await questionPackage.save();
     }
 
@@ -60,6 +76,11 @@ class QuestionPackageService {
         // Güncellenmiş paketi kaydet ve geri döndür
         return await questionPackage.save();
     }
+
+    // Paketten tekil soru silme
+
+
+
 }
 
 export const questionPackageService = new QuestionPackageService();

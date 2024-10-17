@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPackage, addQuestion, getAllPackages, getPackageById, deletePackage, updatePackage } from '../controllers/QuestionPackageController';
+import { createPackage, addQuestion, getAllPackages, getPackageById, deletePackage, updatePackage, deleteQuestion  } from '../controllers/QuestionPackageController';
 
 const router = Router();
 
@@ -20,5 +20,7 @@ router.put('/packages/:packageId', updatePackage);
 
 // Soru paketini silme
 router.delete('/packages/:packageId', deletePackage);
+
+router.delete('/packages/:packageId/questions/:questionId', deleteQuestion);
 
 export default router;

@@ -5,12 +5,13 @@ import useQuestionStore from "../store/questionStore";
 const ManagePackage = () => {
   const { packageId } = useParams(); // Paketin ID'sini almak için
   const navigate = useNavigate();
-  const { questionPackages, addQuestionToPackage, updateQuestionPackage, fetchQuestionPackages } = useQuestionStore();
+  const { questionPackages, addQuestionToPackage, updateQuestionPackage, deleteQuestionFromPackage, fetchQuestionPackages } = useQuestionStore();
   const [packageData, setPackageData] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
   const [newTime, setNewTime] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
   useEffect(() => {
     const selectedPackage = questionPackages.find((pkg) => pkg._id === packageId);
     if (selectedPackage) {
@@ -20,8 +21,14 @@ const ManagePackage = () => {
   }, [packageId, questionPackages]);
 
   const handleSave = async () => {
-    await updateQuestionPackage(packageId, newTitle); // Paketi güncelle
-    navigate("/"); // Ana sayfaya dön
+    if (packageData) {
+      const updatedData = {
+        title: newTitle,
+        questions: packageData.questions,
+      };
+      await updateQuestionPackage(packageId, updatedData);
+      navigate("/admin-dashboard/questions");
+    }
   };
 
   const handleAddQuestion = async () => {
@@ -30,8 +37,17 @@ const ManagePackage = () => {
       setIsPopupOpen(false);
       setNewQuestion("");
       setNewTime("");
+      await fetchQuestionPackages(); // Paketleri yeniden çek ve güncelle
     }
   };
+
+  // Soru silme işlemi
+  const handleDeleteQuestion = async (questionId) => {
+    console.log(questionId);
+    await deleteQuestionFromPackage(packageId, questionId); // questionId doğru şekilde gönderiliyor mu?
+    await fetchQuestionPackages(); // Paketleri yeniden çek
+};
+
 
   return (
     <div className="p-4">
@@ -59,7 +75,7 @@ const ManagePackage = () => {
             <thead>
               <tr>
                 <th className="px-4 py-2">Order</th>
-                <th className="px-4 py-2">Question</th>
+                <th className="px-4 py-2">Questions</th>
                 <th className="px-4 py-2">Time</th>
                 <th className="px-4 py-2">Action</th>
               </tr>
@@ -71,7 +87,12 @@ const ManagePackage = () => {
                   <td className="border px-4 py-2">{question.question}</td>
                   <td className="border px-4 py-2">{question.time}</td>
                   <td className="border px-4 py-2">
-                    <button className="bg-red-500 text-white rounded px-2 py-1">Delete</button>
+                    <button
+                      className="bg-red-500 text-white rounded px-2 py-1"
+                      onClick={() => handleDeleteQuestion(question._id)} // Soruyu silme işlemi burada yapılıyor
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

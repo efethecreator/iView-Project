@@ -1,6 +1,26 @@
 import { Request, Response } from 'express';
 import { questionPackageService } from '../services/QuestionPackageService';
 
+
+const deleteQuestion = async (req: Request, res: Response) => {
+     try {
+       const { packageId, questionId } = req.params;
+       const updatedPackage = await questionPackageService.deleteQuestionFromPackage(packageId, questionId);
+   
+       if (!updatedPackage) {
+         res.status(404).json({ message: 'Question or package not found' });
+       }
+   
+       res.status(200).json(updatedPackage);
+     } catch (error) {
+       res.status(500).json({ message: error instanceof Error ? error.message : 'An unknown error occurred' });
+     }
+   };
+   
+   export { deleteQuestion };
+    
+
+
 // Yeni soru paketi oluşturma
 export const createPackage = async (req: Request, res: Response) => {
     try {
@@ -20,16 +40,18 @@ export const addQuestion = async (req: Request, res: Response) => {
     try {
         const { packageId } = req.params;
         const { question, time } = req.body;
+
+        console.log('Adding question:', question, 'with time:', time); // Soruları yazdır
+
         const updatedPackage = await questionPackageService.addQuestion(packageId, question, time);
         if (!updatedPackage) {
-             res.status(404).json({ message: 'Question package not found' });
+            res.status(404).json({ message: 'Question package not found' });
+        } else {
+            res.status(200).json(updatedPackage);
         }
-         res.status(200).json(updatedPackage);
     } catch (error) {
-        if (error instanceof Error) {
-             res.status(500).json({ message: error.message });
-        }
-         res.status(500).json({ message: 'An unknown error occurred' });
+        console.error('Error in addQuestion:', error); // Hata durumunu yazdır
+        res.status(500).json({ message: error instanceof Error ? error.message : 'An unknown error occurred' });
     }
 };
 
@@ -68,23 +90,20 @@ export const getPackageById = async (req: Request, res: Response) => {
 
 // Soru paketini güncelleme
 export const updatePackage = async (req: Request, res: Response) => {
-    try {
-        const { packageId } = req.params; // Güncellenecek paket ID'si
-        const { title, questions } = req.body; // Güncellenmiş başlık ve sorular
-
-        // Service katmanında güncelleme fonksiyonu çağrılır
-        const updatedPackage = await questionPackageService.updatePackage(packageId, title, questions);
-        if (!updatedPackage) {
-             res.status(404).json({ message: 'Question package not found' });
-        }
-         res.status(200).json(updatedPackage); // Güncellenmiş paketi geri döner
-    } catch (error) {
-        if (error instanceof Error) {
-             res.status(500).json({ message: error.message });
-        }
-         res.status(500).json({ message: 'An unknown error occurred' });
-    }
-};
+     try {
+         const { packageId } = req.params;
+         const { title, questions } = req.body;
+ 
+         const updatedPackage = await questionPackageService.updatePackage(packageId, title, questions);
+         if (!updatedPackage) {
+              res.status(404).json({ message: 'Question package not found' });
+         }
+          res.status(200).json(updatedPackage);
+     } catch (error) {
+          res.status(500).json({ message: error instanceof Error ? error.message : 'An unknown error occurred' });
+     }
+ };
+ 
 
 // Soru paketini silme
 // Soru paketini silme
@@ -104,7 +123,6 @@ export const deletePackage = async (req: Request, res: Response) => {
         }
     }
 
-    
-
-    
+    // Soru silme
+ 
 };

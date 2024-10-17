@@ -68,6 +68,28 @@ const useQuestionStore = create((set) => ({
     }
   },
 
+  // Update a question package
+  updateQuestionPackage: async (packageId, updatedData) => {
+    set({ loading: true });
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/packages/${packageId}`,
+        updatedData
+      );
+      set((state) => ({
+        questionPackages: state.questionPackages.map((pkg) =>
+          pkg._id === packageId ? response.data : pkg
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || error.message,
+        loading: false,
+      });
+    }
+  },
+
   // Delete a question package
   deleteQuestionPackage: async (packageId) => {
     set({ loading: true });
