@@ -71,6 +71,7 @@ const useQuestionStore = create((set) => ({
   // Update a question package
   updateQuestionPackage: async (packageId, updatedData) => {
     set({ loading: true });
+    console.log("updatedData", updatedData);
     try {
       const response = await axios.put(
         `http://localhost:8000/api/packages/${packageId}`,

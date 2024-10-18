@@ -10,6 +10,7 @@ const ManagePackage = () => {
   const [newTitle, setNewTitle] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
   const [newTime, setNewTime] = useState("");
+  const [tempQuestions, setTempQuestions] = useState([]); // Yeni soruları geçici olarak tutacağımız liste
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
@@ -23,21 +24,24 @@ const ManagePackage = () => {
   const handleSave = async () => {
     if (packageData) {
       const updatedData = {
+        questions: [...packageData.questions, ...tempQuestions], // Mevcut sorular + yeni eklenen sorular
         title: newTitle,
-        questions: packageData.questions,
       };
+      console.log("ftomr tmed", updatedData);
       await updateQuestionPackage(packageId, updatedData);
+      setTempQuestions([]); // Kaydettikten sonra geçici listeyi temizleyelim
       navigate("/admin-dashboard/questions");
     }
   };
 
-  const handleAddQuestion = async () => {
+  const handleAddQuestion = () => {
     if (newQuestion.trim() && newTime.trim()) {
-      await addQuestionToPackage(packageId, newQuestion, newTime);
+      // Geçici listeye yeni soruyu ekle, ancak _id atama
+      const newQ = { question: newQuestion, time: newTime }; // _id ekleme
+      setTempQuestions((prevQuestions) => [...prevQuestions, newQ]);
       setIsPopupOpen(false);
       setNewQuestion("");
       setNewTime("");
-      await fetchQuestionPackages(); // Paketleri yeniden çek ve güncelle
     }
   };
 
@@ -46,8 +50,7 @@ const ManagePackage = () => {
     console.log(questionId);
     await deleteQuestionFromPackage(packageId, questionId); // questionId doğru şekilde gönderiliyor mu?
     await fetchQuestionPackages(); // Paketleri yeniden çek
-};
-
+  };
 
   return (
     <div className="p-4">
@@ -90,6 +93,23 @@ const ManagePackage = () => {
                     <button
                       className="bg-red-500 text-white rounded px-2 py-1"
                       onClick={() => handleDeleteQuestion(question._id)} // Soruyu silme işlemi burada yapılıyor
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {/* Geçici olarak eklenen sorular */}
+              {tempQuestions.map((question, index) => (
+                <tr key={`temp-${index}`}>
+                  <td className="border px-4 py-2">{packageData.questions.length + index + 1}</td>
+                  <td className="border px-4 py-2">{question.question}</td>
+                  <td className="border px-4 py-2">{question.time}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="bg-red-500 text-white rounded px-2 py-1"
+                      onClick={() => handleDeleteQuestion(question._id)} // Geçici soruyu silme işlemi
                     >
                       Delete
                     </button>
