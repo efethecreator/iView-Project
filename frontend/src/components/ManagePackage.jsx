@@ -5,12 +5,13 @@ import useQuestionStore from "../store/questionStore";
 const ManagePackage = () => {
   const { packageId } = useParams(); // Paketin ID'sini almak için
   const navigate = useNavigate();
-  const { questionPackages, addQuestionToPackage, updateQuestionPackage, deleteQuestionFromPackage, fetchQuestionPackages } = useQuestionStore();
+  const { questionPackages, updateQuestionPackage, fetchQuestionPackages } = useQuestionStore();
   const [packageData, setPackageData] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
   const [newTime, setNewTime] = useState("");
   const [tempQuestions, setTempQuestions] = useState([]); // Yeni soruları geçici olarak tutacağımız liste
+  const [deletedQuestions, setDeletedQuestions] = useState([]); // Silinen soruların ID'lerini tutacak liste
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
@@ -24,20 +25,24 @@ const ManagePackage = () => {
   const handleSave = async () => {
     if (packageData) {
       const updatedData = {
-        questions: [...packageData.questions, ...tempQuestions], // Mevcut sorular + yeni eklenen sorular
+        questions: [
+          ...packageData.questions.filter(question => !deletedQuestions.includes(question._id)), // Silinenleri filtrele
+          ...tempQuestions, // Yeni eklenen soruları ekle
+        ],
         title: newTitle,
       };
-      console.log("ftomr tmed", updatedData);
+
+      console.log("Updated data", updatedData);
       await updateQuestionPackage(packageId, updatedData);
       setTempQuestions([]); // Kaydettikten sonra geçici listeyi temizleyelim
+      setDeletedQuestions([]); // Silinen soruları temizle
       navigate("/admin-dashboard/questions");
     }
   };
 
   const handleAddQuestion = () => {
     if (newQuestion.trim() && newTime.trim()) {
-      // Geçici listeye yeni soruyu ekle, ancak _id atama
-      const newQ = { question: newQuestion, time: newTime }; // _id ekleme
+      const newQ = { question: newQuestion, time: newTime }; // Yeni soru
       setTempQuestions((prevQuestions) => [...prevQuestions, newQ]);
       setIsPopupOpen(false);
       setNewQuestion("");
@@ -46,10 +51,12 @@ const ManagePackage = () => {
   };
 
   // Soru silme işlemi
-  const handleDeleteQuestion = async (questionId) => {
-    console.log(questionId);
-    await deleteQuestionFromPackage(packageId, questionId); // questionId doğru şekilde gönderiliyor mu?
-    await fetchQuestionPackages(); // Paketleri yeniden çek
+  const handleDeleteQuestion = (questionId) => {
+    // Geçici listeden sil
+    setTempQuestions((prevQuestions) => prevQuestions.filter(q => q.question !== questionId));
+    
+    // Silinen sorunun ID'sini tut
+    setDeletedQuestions((prevDeleted) => [...prevDeleted, questionId]);
   };
 
   return (
@@ -84,7 +91,7 @@ const ManagePackage = () => {
               </tr>
             </thead>
             <tbody>
-              {packageData.questions.map((question, index) => (
+              {packageData.questions.filter(question => !deletedQuestions.includes(question._id)).map((question, index) => (
                 <tr key={question._id}>
                   <td className="border px-4 py-2">{index + 1}</td>
                   <td className="border px-4 py-2">{question.question}</td>
@@ -109,7 +116,7 @@ const ManagePackage = () => {
                   <td className="border px-4 py-2">
                     <button
                       className="bg-red-500 text-white rounded px-2 py-1"
-                      onClick={() => handleDeleteQuestion(question._id)} // Geçici soruyu silme işlemi
+                      onClick={() => handleDeleteQuestion(question.question)} // Geçici soruyu silme işlemi
                     >
                       Delete
                     </button>
