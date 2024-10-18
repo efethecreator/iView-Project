@@ -6,12 +6,12 @@ const InterviewList = () => {
 
   return (
     <div>
-      <h2 className="text-2xl text-white">Interview List</h2>
-      <ul className="space-y-2">
+      <h2 className="text-2xl text-white bg-white">Interview List</h2>
+      <ul className="space-y-2 bg-white">
         <li>
           <Link
             to="/admin-dashboard/interviews"
-            className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'interviews' ? 'bg-gray-700' : 'text-gray-400'}`}
+            className={`block p-2 rounded hover:bg-white ${activeMenu === 'interviews' ? 'bg-white' : 'bg-white'}`}
             onClick={() => setActiveMenu('interviews')}
           >
             Interview List

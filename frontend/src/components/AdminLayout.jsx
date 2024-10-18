@@ -1,5 +1,3 @@
-// adminDashboard
-
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -9,35 +7,45 @@ const AdminLayout = () => {
   const [activeMenu, setActiveMenu] = useState('questions');
 
   return (
-    <div className="flex bg-gray-800 min-h-screen">
+    <div className="flex bg-gray-50 min-h-screen">
       {/* Sol Menü */}
-      <div className="w-64 bg-gray-900 p-4">
-        <h1 className="text-white text-2xl mb-4">iView Admin Panel</h1>
-        <ul className="space-y-2">
+      <div className="w-64 bg-white p-6 shadow-xl flex flex-col items-start">
+        <h1 className="text-gray-800 text-3xl font-bold relative mb-6">iView Admin Panel</h1>
+
+        {/* İnce ve animasyonlu çizgi */}
+        <div className="w-full h-1 bg-transparent relative mb-8">
+          <div className="absolute w-full h-1 bg-gray-300 transition-all duration-500"></div>
+          <div className="absolute w-0 h-1 bg-gray-500 hover:w-full transition-all duration-700"></div>
+        </div>
+
+        {/* Menü Linkleri */}
+        <ul className="space-y-6">
           <li>
             <Link
               to="/admin-dashboard/questions"
-              className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'questions' ? 'bg-gray-700' : 'text-gray-400'}`}
-              onClick={() => setActiveMenu('questions')}
+              className="block text-lg font-medium text-gray-700 py-2 px-4 rounded-lg hover:bg-blue-100 hover:text-blue-600 hover:underline hover:shadow-lg transition-all duration-300 relative"
             >
               Manage Question Package
+              {/* Hover sırasında underline */}
+              <span className="absolute left-0 bottom-0 w-0 h-1 bg-blue-500 transition-all duration-500 hover:w-full"></span>
             </Link>
           </li>
           <li>
             <Link
               to="/admin-dashboard/interviews"
-              className={`block p-2 rounded hover:bg-gray-700 ${activeMenu === 'interviews' ? 'bg-gray-700' : 'text-gray-400'}`}
-              onClick={() => setActiveMenu('interviews')}
+              className="block text-lg font-medium text-gray-700 py-2 px-4 rounded-lg hover:bg-blue-100 hover:text-blue-600 hover:underline hover:shadow-lg transition-all duration-300 relative"
             >
               Interview List
+              {/* Hover sırasında underline */}
+              <span className="absolute left-0 bottom-0 w-0 h-1 bg-blue-500 transition-all duration-500 hover:w-full"></span>
             </Link>
           </li>
         </ul>
       </div>
 
       {/* İçerik Alanı */}
-      <div className="flex-1 p-8">
-        {isHomePage && <h1 className="text-3xl text-white">Hoş Geldin!</h1>}
+      <div className="flex-1 p-10 bg-white shadow-lg">
+        {isHomePage && <h1 className="text-4xl text-gray-800 font-semibold">Hoş Geldin!</h1>}
         <Outlet />
       </div>
     </div>

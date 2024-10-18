@@ -14,7 +14,7 @@ const ManageQuestions = () => {
 
   return (
     <div className="flex">
-      <div className="w-64 bg-gray-900 p-4">
+      <div className="w-64 bg-white p-4">
         <h2 className="text-2xl text-white">Admin Dashboard</h2>
         <ul className="space-y-2">
           <li>
@@ -28,7 +28,7 @@ const ManageQuestions = () => {
         </ul>
       </div>
 
-      <div className="flex-grow p-4">
+      <div className="flex-grow p-4 bg-white">
         <QuestionManagement />
       </div>
     </div>

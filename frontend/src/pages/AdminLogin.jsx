@@ -18,7 +18,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+    <div className="flex items-center justify-center min-h-screen bg-white">
       <form className="bg-white p-6 rounded shadow-md w-80" onSubmit={handleLogin}>
         <h2 className="text-lg font-bold mb-4">Admin Log in Page</h2>
         {error && <p className="text-red-500">{error}</p>}  {/* Eğer hata varsa ekrana yaz */}

@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useQuestionStore from "../store/questionStore";
+import { FaPlus, FaTrash, FaEdit } from "react-icons/fa"; // Iconlar
+import { motion, AnimatePresence } from "framer-motion"; // Animasyonlar için
 
 const ManagePackage = () => {
-  const { packageId } = useParams(); // Paketin ID'sini almak için
+  const { packageId } = useParams();
   const navigate = useNavigate();
   const { questionPackages, updateQuestionPackage, fetchQuestionPackages } = useQuestionStore();
   const [packageData, setPackageData] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
   const [newTime, setNewTime] = useState("");
-  const [tempQuestions, setTempQuestions] = useState([]); // Yeni soruları geçici olarak tutacağımız liste
-  const [deletedQuestions, setDeletedQuestions] = useState([]); // Silinen soruların ID'lerini tutacak liste
+  const [tempQuestions, setTempQuestions] = useState([]);
+  const [deletedQuestions, setDeletedQuestions] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
@@ -26,23 +28,22 @@ const ManagePackage = () => {
     if (packageData) {
       const updatedData = {
         questions: [
-          ...packageData.questions.filter(question => !deletedQuestions.includes(question._id)), // Silinenleri filtrele
-          ...tempQuestions, // Yeni eklenen soruları ekle
+          ...packageData.questions.filter(question => !deletedQuestions.includes(question._id)),
+          ...tempQuestions,
         ],
         title: newTitle,
       };
 
-      console.log("Updated data", updatedData);
       await updateQuestionPackage(packageId, updatedData);
-      setTempQuestions([]); // Kaydettikten sonra geçici listeyi temizleyelim
-      setDeletedQuestions([]); // Silinen soruları temizle
+      setTempQuestions([]);
+      setDeletedQuestions([]);
       navigate("/admin-dashboard/questions");
     }
   };
 
   const handleAddQuestion = () => {
     if (newQuestion.trim() && newTime.trim()) {
-      const newQ = { question: newQuestion, time: newTime }; // Yeni soru
+      const newQ = { question: newQuestion, time: newTime };
       setTempQuestions((prevQuestions) => [...prevQuestions, newQ]);
       setIsPopupOpen(false);
       setNewQuestion("");
@@ -50,125 +51,170 @@ const ManagePackage = () => {
     }
   };
 
-  // Soru silme işlemi
   const handleDeleteQuestion = (questionId) => {
-    // Geçici listeden sil
     setTempQuestions((prevQuestions) => prevQuestions.filter(q => q.question !== questionId));
-    
-    // Silinen sorunun ID'sini tut
     setDeletedQuestions((prevDeleted) => [...prevDeleted, questionId]);
   };
 
   return (
-    <div className="p-4">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
       {packageData && (
         <>
-          <h2 className="text-2xl text-white mb-4">Edit Package: {packageData.title}</h2>
+          <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
+            Manage Question Package
+          </h2>
 
-          <div className="flex items-center mb-4">
-            <input
-              type="text"
-              className="border border-gray-300 rounded p-2 mr-2"
-              placeholder="Package name..."
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-            />
+          {/* Soru Başlığı Düzenleme Kısmı */}
+          <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-lg mb-8">
+            <div className="flex flex-col w-full">
+              <label htmlFor="packageTitle" className="text-gray-700 mb-2 font-medium">
+                Edit Package Title
+              </label>
+              <input
+                id="packageTitle"
+                type="text"
+                className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring focus:ring-blue-200 transition-all"
+                placeholder="Package Title..."
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+            </div>
+            <motion.button
+              onClick={() => setIsPopupOpen(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center"
+            >
+              <FaPlus className="mr-2" />
+              <span>Add Question</span>
+            </motion.button>
+          </div>
+
+          {/* Soru Listesi Tablosu */}
+          <div className="bg-white shadow-xl rounded-xl overflow-hidden">
+            <table className="min-w-full table-auto text-left">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-6 py-3 text-gray-600 font-medium">#</th>
+                  <th className="px-6 py-3 text-gray-600 font-medium">Question</th>
+                  <th className="px-6 py-3 text-gray-600 font-medium">Time</th>
+                  <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white">
+                {packageData.questions
+                  .filter((question) => !deletedQuestions.includes(question._id))
+                  .map((question, index) => (
+                    <tr key={question._id} className="border-t hover:bg-gray-50 transition-all">
+                      <td className="px-6 py-4 text-gray-700">{index + 1}</td>
+                      <td className="px-6 py-4 text-gray-700">{question.question}</td>
+                      <td className="px-6 py-4 text-gray-700">{question.time}</td>
+                      <td className="px-6 py-4 flex space-x-4">
+                        <motion.button
+                          onClick={() => handleDeleteQuestion(question._id)}
+                          className="text-red-500 hover:text-red-700"
+                          whileHover={{ rotate: 15, scale: 1.2 }}
+                          whileTap={{ rotate: -15, scale: 0.9 }}
+                        >
+                          <FaTrash className="text-xl" />
+                        </motion.button>
+                        <motion.button
+                          onClick={() => {
+                            window.location.href = `/admin-dashboard/questions/manage/${question._id}`;
+                          }}
+                          className="text-yellow-500 hover:text-yellow-700"
+                          whileHover={{ rotate: 15, scale: 1.2 }}
+                          whileTap={{ rotate: -15, scale: 0.9 }}
+                        >
+                          <FaEdit className="text-xl" />
+                        </motion.button>
+                      </td>
+                    </tr>
+                  ))}
+
+                {tempQuestions.map((question, index) => (
+                  <tr key={`temp-${index}`} className="border-t hover:bg-gray-50 transition-all">
+                    <td className="px-6 py-4 text-gray-700">{packageData.questions.length + index + 1}</td>
+                    <td className="px-6 py-4 text-gray-700">{question.question}</td>
+                    <td className="px-6 py-4 text-gray-700">{question.time}</td>
+                    <td className="px-6 py-4 flex space-x-4">
+                      <motion.button
+                        onClick={() => handleDeleteQuestion(question.question)}
+                        className="text-red-500 hover:text-red-700"
+                        whileHover={{ rotate: 15, scale: 1.2 }}
+                        whileTap={{ rotate: -15, scale: 0.9 }}
+                      >
+                        <FaTrash className="text-xl" />
+                      </motion.button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Kaydet ve İptal Butonları */}
+          <div className="flex justify-end mt-4 space-x-2">
+            <button
+              onClick={() => navigate("/admin-dashboard/questions")}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleSave}
-              className="bg-blue-500 text-white rounded p-2"
+              className="bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
             >
               Save
             </button>
           </div>
 
-          <table className="min-w-full bg-gray-800 text-white">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">Order</th>
-                <th className="px-4 py-2">Questions</th>
-                <th className="px-4 py-2">Time</th>
-                <th className="px-4 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packageData.questions.filter(question => !deletedQuestions.includes(question._id)).map((question, index) => (
-                <tr key={question._id}>
-                  <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">{question.question}</td>
-                  <td className="border px-4 py-2">{question.time}</td>
-                  <td className="border px-4 py-2">
+          {/* Add Question Modal */}
+          <AnimatePresence>
+            {isPopupOpen && (
+              <motion.div
+                className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-75 z-50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className="bg-white p-6 rounded-lg shadow-lg"
+                  initial={{ y: -100, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -100, opacity: 0 }}
+                >
+                  <h3 className="text-xl font-semibold mb-4">Add a New Question</h3>
+                  <input
+                    type="text"
+                    placeholder="Enter question..."
+                    value={newQuestion}
+                    onChange={(e) => setNewQuestion(e.target.value)}
+                    className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Enter time (in seconds)..."
+                    value={newTime}
+                    onChange={(e) => setNewTime(e.target.value)}
+                    className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
+                  />
+                  <div className="flex justify-end space-x-2">
                     <button
-                      className="bg-red-500 text-white rounded px-2 py-1"
-                      onClick={() => handleDeleteQuestion(question._id)} // Soruyu silme işlemi burada yapılıyor
+                      onClick={() => setIsPopupOpen(false)}
+                      className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg shadow-md"
                     >
-                      Delete
+                      Cancel
                     </button>
-                  </td>
-                </tr>
-              ))}
-
-              {/* Geçici olarak eklenen sorular */}
-              {tempQuestions.map((question, index) => (
-                <tr key={`temp-${index}`}>
-                  <td className="border px-4 py-2">{packageData.questions.length + index + 1}</td>
-                  <td className="border px-4 py-2">{question.question}</td>
-                  <td className="border px-4 py-2">{question.time}</td>
-                  <td className="border px-4 py-2">
                     <button
-                      className="bg-red-500 text-white rounded px-2 py-1"
-                      onClick={() => handleDeleteQuestion(question.question)} // Geçici soruyu silme işlemi
+                      onClick={handleAddQuestion}
+                      className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md"
                     >
-                      Delete
+                      Add
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <button
-            onClick={() => setIsPopupOpen(true)}
-            className="bg-green-500 text-white rounded p-2 mt-4"
-          >
-            Add Question
-          </button>
-
-          {/* Pop-up */}
-          {isPopupOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-75">
-              <div className="bg-white p-4 rounded shadow-lg">
-                <h3 className="text-xl mb-4">Add a New Question</h3>
-                <input
-                  type="text"
-                  placeholder="Enter question..."
-                  value={newQuestion}
-                  onChange={(e) => setNewQuestion(e.target.value)}
-                  className="border border-gray-300 rounded p-2 mb-4 w-full"
-                />
-                <input
-                  type="text"
-                  placeholder="Enter time..."
-                  value={newTime}
-                  onChange={(e) => setNewTime(e.target.value)}
-                  className="border border-gray-300 rounded p-2 mb-4 w-full"
-                />
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleAddQuestion}
-                    className="bg-blue-500 text-white rounded p-2"
-                  >
-                    Add
-                  </button>
-                  <button
-                    onClick={() => setIsPopupOpen(false)}
-                    className="bg-red-500 text-white rounded p-2"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>

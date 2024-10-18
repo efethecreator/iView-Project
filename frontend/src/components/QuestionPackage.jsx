@@ -4,9 +4,9 @@ import React from 'react';
 
 const QuestionPackage = ({ pkg, expandedPackages, togglePackage, openEditModal, deleteQuestion, deleteQuestionPackage }) => {
   return (
-    <div className="bg-gray-800 p-4 rounded-md">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl text-white cursor-pointer" onClick={() => togglePackage(pkg.id)}>
+    <div className="bg-white p-4 rounded-md">
+      <div className="flex justify-between items-center bg-white">
+        <h3 className="text-xl text-white cursor-pointer bg-white" onClick={() => togglePackage(pkg.id)}>
           {pkg.title}
         </h3>
         {!expandedPackages.includes(pkg.id) && (

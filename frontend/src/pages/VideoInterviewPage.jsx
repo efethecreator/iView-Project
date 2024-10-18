@@ -60,21 +60,21 @@ const VideoInterviewPage = () => {
   };
 
   return (
-    <div className="video-interview-page">
-      <h2>Video Interview</h2>
+    <div className="video-interview-page bg-white min-h-screen p-4"> {/* Arka plan beyaz yapıldı */}
+      <h2 className="text-2xl text-gray-800 mb-4">Video Interview</h2>
 
-      <div className="video-container">
-        <video ref={videoRef} className="video-preview" playsInline autoPlay muted></video>
+      <div className="video-container mb-4">
+        <video ref={videoRef} className="video-preview w-full rounded shadow-md" playsInline autoPlay muted></video>
       </div>
 
-      <div className="controls">
+      <div className="controls mb-4">
         {!isRecording && (
-          <button className="start-btn" onClick={handleStartRecording}>
+          <button className="start-btn bg-green-500 text-white px-4 py-2 rounded shadow-md" onClick={handleStartRecording}>
             Start Recording
           </button>
         )}
         {isRecording && (
-          <button className="stop-btn" onClick={handleStopRecording}>
+          <button className="stop-btn bg-red-500 text-white px-4 py-2 rounded shadow-md" onClick={handleStopRecording}>
             Stop Recording
           </button>
         )}
@@ -82,8 +82,8 @@ const VideoInterviewPage = () => {
 
       {videoUrl && (
         <div className="download-section">
-          <video src={videoUrl} controls className="recorded-video"></video>
-          <button className="download-btn" onClick={handleDownloadVideo}>
+          <video src={videoUrl} controls className="recorded-video w-full rounded shadow-md mb-4"></video>
+          <button className="download-btn bg-blue-500 text-white px-4 py-2 rounded shadow-md" onClick={handleDownloadVideo}>
             Download Video
           </button>
         </div>
