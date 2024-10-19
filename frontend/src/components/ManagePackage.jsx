@@ -118,16 +118,6 @@ const ManagePackage = () => {
                         >
                           <FaTrash className="text-xl" />
                         </motion.button>
-                        <motion.button
-                          onClick={() => {
-                            window.location.href = `/admin-dashboard/questions/manage/${question._id}`;
-                          }}
-                          className="text-yellow-500 hover:text-yellow-700"
-                          whileHover={{ rotate: 15, scale: 1.2 }}
-                          whileTap={{ rotate: -15, scale: 0.9 }}
-                        >
-                          <FaEdit className="text-xl" />
-                        </motion.button>
                       </td>
                     </tr>
                   ))}
@@ -191,12 +181,12 @@ const ManagePackage = () => {
                   exit={{ y: -100, opacity: 0 }}
                 >
                   <h3 className="text-xl font-semibold mb-4">Add a New Question</h3>
-                  <input
-                    type="text"
+                  
+                  <textarea
                     placeholder="Enter question..."
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
-                    className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
+                    className="border border-gray-300 rounded-lg p-2 mb-4 w-full h-24"
                   />
                   <input
                     type="number" // Sadece sayı girişine izin verir.
