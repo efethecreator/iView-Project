@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useQuestionStore from "../store/questionStore";
-import { FaPlus, FaTrash, FaEdit } from "react-icons/fa"; // Iconlar
-import { motion, AnimatePresence } from "framer-motion"; // Animasyonlar için
+import { FaPlus, FaTrash, FaEdit } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ManagePackage = () => {
   const { packageId } = useParams();
   const navigate = useNavigate();
-  const { questionPackages, updateQuestionPackage, fetchQuestionPackages } = useQuestionStore();
+  const { questionPackages, updateQuestionPackage } = useQuestionStore();
   const [packageData, setPackageData] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newQuestion, setNewQuestion] = useState("");
@@ -28,7 +28,7 @@ const ManagePackage = () => {
     if (packageData) {
       const updatedData = {
         questions: [
-          ...packageData.questions.filter(question => !deletedQuestions.includes(question._id)),
+          ...packageData.questions.filter((question) => !deletedQuestions.includes(question._id)),
           ...tempQuestions,
         ],
         title: newTitle,
@@ -52,7 +52,7 @@ const ManagePackage = () => {
   };
 
   const handleDeleteQuestion = (questionId) => {
-    setTempQuestions((prevQuestions) => prevQuestions.filter(q => q.question !== questionId));
+    setTempQuestions((prevQuestions) => prevQuestions.filter((q) => q.question !== questionId));
     setDeletedQuestions((prevDeleted) => [...prevDeleted, questionId]);
   };
 
@@ -61,12 +61,12 @@ const ManagePackage = () => {
       {packageData && (
         <>
           <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
-            Manage Question Package
+            Manage Question Packages
           </h2>
 
           {/* Soru Başlığı Düzenleme Kısmı */}
           <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-lg mb-8">
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full mr-4">
               <label htmlFor="packageTitle" className="text-gray-700 mb-2 font-medium">
                 Edit Package Title
               </label>
@@ -81,10 +81,12 @@ const ManagePackage = () => {
             </div>
             <motion.button
               onClick={() => setIsPopupOpen(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center"
+              className="bg-blue-500 text-white px-4 py-1.5 rounded-full shadow-lg flex items-center justify-center space-x-2 mt-7"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <FaPlus className="mr-2" />
-              <span>Add Question</span>
+              <FaPlus />
+              <span className="text-sm">Add Question</span>
             </motion.button>
           </div>
 
@@ -132,7 +134,9 @@ const ManagePackage = () => {
 
                 {tempQuestions.map((question, index) => (
                   <tr key={`temp-${index}`} className="border-t hover:bg-gray-50 transition-all">
-                    <td className="px-6 py-4 text-gray-700">{packageData.questions.length + index + 1}</td>
+                    <td className="px-6 py-4 text-gray-700">
+                      {packageData.questions.length + index + 1}
+                    </td>
                     <td className="px-6 py-4 text-gray-700">{question.question}</td>
                     <td className="px-6 py-4 text-gray-700">{question.time}</td>
                     <td className="px-6 py-4 flex space-x-4">
@@ -153,18 +157,22 @@ const ManagePackage = () => {
 
           {/* Kaydet ve İptal Butonları */}
           <div className="flex justify-end mt-4 space-x-2">
-            <button
+            <motion.button
               onClick={() => navigate("/admin-dashboard/questions")}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Cancel
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={handleSave}
               className="bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Save
-            </button>
+            </motion.button>
           </div>
 
           {/* Add Question Modal */}
@@ -191,25 +199,31 @@ const ManagePackage = () => {
                     className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
                   />
                   <input
-                    type="text"
+                    type="number" // Sadece sayı girişine izin verir.
                     placeholder="Enter time (in seconds)..."
                     value={newTime}
                     onChange={(e) => setNewTime(e.target.value)}
                     className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
+                    min="0" // Negatif sayılar önlenir.
+                    step="1" // Sadece tam sayı girişi yapılabilir.
                   />
                   <div className="flex justify-end space-x-2">
-                    <button
+                    <motion.button
                       onClick={() => setIsPopupOpen(false)}
-                      className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg shadow-md"
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Cancel
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       onClick={handleAddQuestion}
-                      className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md"
+                      className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Add
-                    </button>
+                    </motion.button>
                   </div>
                 </motion.div>
               </motion.div>
