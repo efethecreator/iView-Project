@@ -5,6 +5,8 @@ dotenv.config();
 import cors from 'cors'; // Import CORS
 import questionPackageRoutes from './routes/QuestionPackageRoutes';
 import adminRoutes from './routes/adminRoutes';
+import userRoutes from './routes/userRoutes';
+import interviewRoutes from './routes/interviewRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,6 +33,8 @@ mongoose.connect(mongoUrl)
 // API Routes
 app.use('/api', questionPackageRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // Basic route for testing
 app.get('/', (req: Request, res: Response) => {
