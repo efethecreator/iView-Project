@@ -1,11 +1,16 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+interface Question {
+  question: string;
+  time: number;
+}
+
 // Interface for Interview schema
 export interface IInterview extends Document {
   title: string;
   packages: Types.ObjectId[]; // Referencing QuestionPackage
-  questions: string[]; // Assuming questions are strings
+  questions: Question[]; // Assuming questions are strings
   expireDate: Date;
   canSkip: boolean;
   showAtOnce: boolean;
@@ -26,7 +31,17 @@ const InterviewSchema: Schema = new Schema<IInterview>({
     required: true
   }],
   questions: {
-    type: [String],
+    type: [
+      {
+        question: {
+          type: String,
+          required: true
+        },
+        time: {
+          type: Number,
+          required: true
+        }
+    }],
     required: true,
     default: []
   },
@@ -46,7 +61,7 @@ const InterviewSchema: Schema = new Schema<IInterview>({
   },
   interviewLink: {
     type: String,
-    default: uuidv4 // Automatically generates a UUID for the interview link
+    default: () => uuidv4(), // Automatically generates a UUID for the interview link
   },
   users: [{
     type: Schema.Types.ObjectId,
