@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus, FaInfoCircle, FaCopy, FaTrashAlt } from 'react-icons/fa';
 import useInterviewStore from '../store/useInterviewStore';
 
-// Interview Information Popup
 const InterviewInfoPopup = ({ interview, onClose }) => (
   <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
     <div className="min-h-[200px] min-w-[300px] bg-white p-4 rounded shadow-md">
@@ -84,17 +83,22 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
-      interviewTitle,
-      expireDate,
-      packages: selectedPackages,
-      extraQuestions,
+    
+    const interviewData = {
+      title: interviewTitle,
+      expireDate: new Date(expireDate).toISOString(),  // ISO formatında tarih
+      packages: selectedPackages.map(pkg => pkg._id),  // Sadece _id'leri gönderiyoruz
+      questions: extraQuestions.map(q => ({ question: q.questionText, time: q.timeLimit })),
       canSkip,
       showAtOnce,
-      isPublished: true,
-    });
+    };
+  
+    console.log(interviewData);  // Gönderilen veriyi kontrol edelim
+    onSubmit(interviewData);
     onClose();
   };
+  
+
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
@@ -109,6 +113,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               placeholder="input..."
               value={interviewTitle}
               onChange={(e) => setInterviewTitle(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -118,6 +123,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               className="border border-gray-300 rounded p-2 w-full"
               value={expireDate}
               onChange={(e) => setExpireDate(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
@@ -125,37 +131,38 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             <select
               className="border p-2 rounded-md w-full block text-black-200 font-semibold mb-1"
               onChange={(e) => {
-                const selectedPackage = e.target.value;
-                if (selectedPackage && !selectedPackages.includes(selectedPackage)) {
-                  setSelectedPackages([...selectedPackages, selectedPackage]);
+                const selectedPackageId = e.target.value;  // _id'yi alıyoruz
+                const selectedPackage = questionPackages.find(pkg => pkg._id === selectedPackageId);  // Seçilen paketin tüm bilgilerini buluyoruz
+                if (selectedPackage && !selectedPackages.some(pkg => pkg._id === selectedPackageId)) {
+                  setSelectedPackages([...selectedPackages, selectedPackage]);  // Paketi ekliyoruz
                 }
               }}
               value=""
             >
               <option value="" disabled>Select Package</option>
               {questionPackages.map(pkg => (
-                <option key={pkg._id} value={pkg.title}>{pkg.title}</option>
+                <option key={pkg._id} value={pkg._id}>{pkg.title}</option>
               ))}
             </select>
 
-            {/* Seçilen paketleri gösterme */}
             <div className="flex flex-wrap mt-2">
               {selectedPackages.map((pkg) => (
-                <div key={pkg} className="bg-gray-200 rounded-full px-3 py-1 m-1 flex items-center">
-                  <span>{pkg}</span>
+                <div key={pkg._id} className="bg-gray-200 rounded-full px-3 py-1 m-1 flex items-center">
+                  <span>{pkg.title}</span>  {/* Paketin adını gösteriyoruz */}
                   <button
                     type="button"
                     className="ml-2 text-red-500"
-                    onClick={() => setSelectedPackages(selectedPackages.filter(p => p !== pkg))}
+                    onClick={() => setSelectedPackages(selectedPackages.filter(p => p._id !== pkg._id))}
                   >
                     <FaTimes />
                   </button>
                 </div>
               ))}
             </div>
+
           </div>
 
-          {/* Soru Ekleme Butonu */}
+          {/* Extra Questions */}
           <div className="mb-4">
             <label className="text-black block text-sm font-semibold mb-1">Extra Questions</label>
             <button
@@ -164,19 +171,19 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               onClick={() => setIsAddQuestionPopupOpen(true)}
             >
               <FaPlus className="mr-1" />
-              Soru Ekle
+              Add Question
             </button>
 
-            {/* Eklenen soruları gösterme */}
             <div className="mt-2">
               {extraQuestions.map((question, index) => (
                 <div key={index} className="bg-gray-200 p-2 rounded mt-1 flex justify-between">
-                  <span>{`${question.questionText} (Zaman Limiti: ${question.timeLimit} dk)`}</span>
+                  <span>{`${question.questionText} (Time Limit: ${question.timeLimit} mins)`}</span>
                 </div>
               ))}
             </div>
           </div>
 
+          {/* Options: Can Skip and Show At Once */}
           <div className="flex justify-between mb-4">
             <div>
               <label className="block text-black font-semibold mb-1">Can Skip</label>
@@ -209,7 +216,6 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
         </form>
       </div>
 
-      {/* Soru Ekleme Popup'ı Açık mı? */}
       {isAddQuestionPopupOpen && (
         <AddQuestionPopup
           onClose={() => setIsAddQuestionPopupOpen(false)}
@@ -219,6 +225,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
     </div>
   );
 };
+
 
 // Main component to manage interviews and render the list
 const JobPositionForm = () => {
@@ -255,7 +262,7 @@ const JobPositionForm = () => {
   };
 
   const handleCopyLink = (id) => {
-    const link = `http://yourapp.com/interview/${id}`;
+    const link = `http://localhost:8000/interview/${id}`;
     navigator.clipboard.writeText(link);
     alert('Link copied to clipboard!');
   };

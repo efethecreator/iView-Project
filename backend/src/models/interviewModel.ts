@@ -35,14 +35,14 @@ const InterviewSchema: Schema = new Schema<IInterview>({
       {
         question: {
           type: String,
-          required: true
+          required: false
         },
         time: {
           type: Number,
-          required: true
+          required: false
         }
     }],
-    required: true,
+    required: false,
     default: []
   },
   expireDate: {
@@ -66,7 +66,7 @@ const InterviewSchema: Schema = new Schema<IInterview>({
   users: [{
     type: Schema.Types.ObjectId,
     ref: 'User', // Reference to User model
-    required: true,
+    required: false,
     default: [] // Initially empty array for users
   }]
 }, {

@@ -1,17 +1,24 @@
 import { Request, Response } from 'express';
 import { createInterview, getInterviewById, getAllInterviews, deleteInterviewById } from '../services/interviewService';
+import mongoose from 'mongoose';
 
-// Create Interview Controller
 // Create Interview Controller
 export const createInterviewController = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log(req.body);
     const { title, packages, questions, expireDate, canSkip, showAtOnce } = req.body;
 
+    if (!title || !expireDate || !packages) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
 
+    // package._id'yi alarak ObjectId oluşturuyoruz
+    const packageIds = packages.map((pkg: any) => new mongoose.Types.ObjectId(pkg._id));
 
     const interviewData = {
       title,
-      packages,
+      packages: packageIds,  // Yalnızca ObjectId'leri alıyoruz
       questions,
       expireDate,
       canSkip,
@@ -24,11 +31,12 @@ export const createInterviewController = async (req: Request, res: Response): Pr
       message: 'Interview created successfully',
       interview: newInterview
     });
-  } catch (error: any) {
-    console.error('Error creating interview:', error.message || error);
-    res.status(500).json({ message: 'Failed to create interview', error: error.message || error });
+  } catch (error) {
+    console.error('Error creating interview:', error);
+    res.status(500).json({ message: 'Failed to create interview', error });
   }
 };
+
 
 
 // Get a single interview by ID
