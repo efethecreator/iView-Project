@@ -4,14 +4,20 @@ import { FaTimes, FaPlus, FaInfoCircle, FaCopy, FaTrashAlt } from 'react-icons/f
 import useInterviewStore from '../store/useInterviewStore';
 
 const InterviewInfoPopup = ({ interview, onClose }) => (
-  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
     <div className="min-h-[200px] min-w-[300px] bg-white p-4 rounded shadow-md">
-      <h2 className="text-black font-bold mb-4">Interview Info</h2>
-      <p><strong>Title:</strong> {interview.interviewTitle}</p>
-      <p><strong>Expire Date:</strong> {interview.expireDate}</p>
-      <p><strong>Selected Packages:</strong> {interview.packages?.join(', ') || 'None'}</p>
-      <p><strong>Can Skip:</strong> {interview.canSkip ? 'Yes' : 'No'}</p>
-      <p><strong>Show At Once:</strong> {interview.showAtOnce ? 'Yes' : 'No'}</p>
+      <h2 className="text-black font-bold mb-4">Question List</h2>
+      {interview.questions && interview.questions.length > 0 ? (
+        <ul>
+          {interview.questions.map((question, index) => (
+            <li key={index} className="mb-2">
+              {question}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No questions available</p>
+      )}
       <button onClick={onClose} className="bg-blue-500 text-white rounded p-2 mt-4">Close</button>
     </div>
   </div>
@@ -29,7 +35,7 @@ const AddQuestionPopup = ({ onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
       <div className="min-h-[200px] min-w-[300px] bg-white p-4 rounded shadow-md">
         <h2 className="text-black font-bold mb-4">Soru Ekle</h2>
         <form onSubmit={handleSubmit}>
@@ -83,25 +89,22 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const interviewData = {
       title: interviewTitle,
-      expireDate: new Date(expireDate).toISOString(),  // ISO formatında tarih
-      packages: selectedPackages.map(pkg => pkg._id),  // Sadece _id'leri gönderiyoruz
+      expireDate: new Date(expireDate).toISOString(),
+      packages: selectedPackages.map(pkg => pkg._id),
       questions: extraQuestions.map(q => ({ question: q.questionText, time: q.timeLimit })),
       canSkip,
       showAtOnce,
     };
-  
-    console.log(interviewData);  // Gönderilen veriyi kontrol edelim
+
     onSubmit(interviewData);
     onClose();
   };
-  
-
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
       <div className="min-h-[400px] min-w-[500px] bg-white p-4 rounded shadow-md">
         <h2 className="text-black font-bold mb-4">Create Interview</h2>
         <form onSubmit={handleSubmit}>
@@ -131,10 +134,10 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             <select
               className="border p-2 rounded-md w-full block text-black-200 font-semibold mb-1"
               onChange={(e) => {
-                const selectedPackageId = e.target.value;  // _id'yi alıyoruz
-                const selectedPackage = questionPackages.find(pkg => pkg._id === selectedPackageId);  // Seçilen paketin tüm bilgilerini buluyoruz
+                const selectedPackageId = e.target.value;
+                const selectedPackage = questionPackages.find(pkg => pkg._id === selectedPackageId);
                 if (selectedPackage && !selectedPackages.some(pkg => pkg._id === selectedPackageId)) {
-                  setSelectedPackages([...selectedPackages, selectedPackage]);  // Paketi ekliyoruz
+                  setSelectedPackages([...selectedPackages, selectedPackage]);
                 }
               }}
               value=""
@@ -148,7 +151,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             <div className="flex flex-wrap mt-2">
               {selectedPackages.map((pkg) => (
                 <div key={pkg._id} className="bg-gray-200 rounded-full px-3 py-1 m-1 flex items-center">
-                  <span>{pkg.title}</span>  {/* Paketin adını gösteriyoruz */}
+                  <span>{pkg.title}</span>
                   <button
                     type="button"
                     className="ml-2 text-red-500"
@@ -225,7 +228,6 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
     </div>
   );
 };
-
 
 // Main component to manage interviews and render the list
 const JobPositionForm = () => {
