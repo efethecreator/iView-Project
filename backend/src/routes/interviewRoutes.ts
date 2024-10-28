@@ -1,18 +1,15 @@
-import express from 'express';
-import { createInterviewController, getInterviewController, getInterviewsController, deleteInterviewController } from '../controllers/interviewController';
+import { Router } from 'express';
+import { createInterviewController, getInterviewController, getInterviewsController, deleteInterviewController, GetInterviewQuestions } from '../controllers/interviewController';
 
-const router = express.Router();
+const router = Router();
 
-// POST route for creating an interview
+// Interview sorularını getirmek için yeni GET route
+router.get('/:id/questions', GetInterviewQuestions); // Interview ID ile ilgili soruları getirir
+
+// Mevcut diğer rotalar
 router.post('/create', createInterviewController);
-
-// GET route for fetching a single interview by ID
 router.get('/:id', getInterviewController);
-
-// GET route for fetching all interviews
 router.get('/', getInterviewsController);
-
-// DELETE route for deleting an interview by ID
 router.delete('/delete/:id', deleteInterviewController);
 
 export default router;
