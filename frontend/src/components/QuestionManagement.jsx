@@ -5,11 +5,12 @@ import { motion } from 'framer-motion'; // For advanced animations
 
 const QuestionManagement = () => {
   const {
-    questionPackages,
+    questionPackages = [], // Varsayılan olarak boş bir dizi atıyoruz
     createQuestionPackage,
     deleteQuestionPackage,
     fetchQuestionPackages,
   } = useQuestionStore();
+
 
   const [newPackageTitle, setNewPackageTitle] = useState("");
 
