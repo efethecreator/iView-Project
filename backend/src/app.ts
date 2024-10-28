@@ -32,10 +32,11 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // API Routes
-app.use("/api", questionPackageRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/interviews", interviewRoutes);
+app.use('/api', questionPackageRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/interview', interviewRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // Basic route for testing
 app.get("/", (req: Request, res: Response) => {

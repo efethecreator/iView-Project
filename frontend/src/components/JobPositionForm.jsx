@@ -1,10 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { FaTimes, FaPlus } from 'react-icons/fa';
+// Interview frontend component linked with interview store
+import React, { useState, useEffect } from "react";
+import {
+  FaTimes,
+  FaPlus,
+  FaInfoCircle,
+  FaCopy,
+  FaTrashAlt,
+} from "react-icons/fa";
+import useInterviewStore from "../store/useInterviewStore";
+
+const InterviewInfoPopup = ({ interviewId, onClose }) => {
+  const { interviewQuestions, fetchInterviewQuestions } = useInterviewStore();
+
+  useEffect(() => {
+    if (interviewId) {
+      fetchInterviewQuestions(interviewId); // Soruları çekmek için API çağrısı
+    }
+  }, [interviewId, fetchInterviewQuestions]);
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="bg-white w-11/12 md:w-1/2 lg:w-1/3 p-6 rounded-lg shadow-lg relative">
+        <h2 className="text-2xl font-bold text-teal-700 mb-4">
+          Package Questions
+        </h2>
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <ul className="space-y-4">
+          {interviewQuestions.map((q, index) => (
+            <li
+              key={q._id || index}
+              className="bg-gray-100 p-4 rounded-lg shadow"
+            >
+              <p className="font-semibold">
+                {index + 1}: {q.question}
+              </p>
+              <p className="text-sm text-gray-600">{q.time} min</p>
+              <p className="text-xs text-gray-500">
+                {q.packageTitle
+                  ? `Package: ${q.packageTitle}`
+                  : "Extra Question"}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
 // Soru Ekleme Popup'ı
 const AddQuestionPopup = ({ onClose, onSubmit }) => {
-  const [questionText, setQuestionText] = useState('');
-  const [timeLimit, setTimeLimit] = useState('');
+  const [questionText, setQuestionText] = useState("");
+  const [timeLimit, setTimeLimit] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,12 +65,14 @@ const AddQuestionPopup = ({ onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
       <div className="min-h-[200px] min-w-[300px] bg-white p-4 rounded shadow-md">
         <h2 className="text-black font-bold mb-4">Soru Ekle</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="text-black block text-sm font-semibold mb-1">Soru:</label>
+            <label className="text-black block text-sm font-semibold mb-1">
+              Soru:
+            </label>
             <input
               type="text"
               className="border border-gray-200 rounded p-2 w-full"
@@ -28,7 +82,9 @@ const AddQuestionPopup = ({ onClose, onSubmit }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="text-black block text-sm font-semibold mb-1">Zaman Limiti (dk):</label>
+            <label className="text-black block text-sm font-semibold mb-1">
+              Zaman Limiti (dk):
+            </label>
             <input
               type="number"
               className="border border-gray-200 rounded p-2 w-full"
@@ -38,10 +94,17 @@ const AddQuestionPopup = ({ onClose, onSubmit }) => {
             />
           </div>
           <div className="flex justify-between">
-            <button type="button" onClick={onClose} className="bg-red-500 text-white rounded p-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-red-500 text-white rounded p-2"
+            >
               İptal
             </button>
-            <button type="submit" className="bg-blue-500 text-white rounded p-2">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white rounded p-2"
+            >
               Ekle
             </button>
           </div>
@@ -51,15 +114,15 @@ const AddQuestionPopup = ({ onClose, onSubmit }) => {
   );
 };
 
-// Ana Popup bileşeni
+// Main Popup for creating a new interview
 const Popup = ({ onClose, onSubmit, questionPackages }) => {
-  const [interviewTitle, setInterviewTitle] = useState('');
-  const [expireDate, setExpireDate] = useState('');
+  const [interviewTitle, setInterviewTitle] = useState("");
+  const [expireDate, setExpireDate] = useState("");
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [extraQuestions, setExtraQuestions] = useState([]);
-  const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
   const [showAtOnce, setShowAtOnce] = useState(false);
+  const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false);
 
   const handleAddQuestion = (question) => {
     setExtraQuestions([...extraQuestions, question]);
@@ -67,68 +130,98 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
-      interviewTitle,
-      expireDate,
-      packages: selectedPackages,
-      extraQuestions,
+
+    const interviewData = {
+      title: interviewTitle,
+      expireDate: new Date(expireDate).toISOString(),
+      packages: selectedPackages.map((pkg) => ({
+        packageId: pkg._id, // packagesSchema'nın gerektirdiği packageId alanına uygun
+      })),
+      questions: extraQuestions.map((q) => ({
+        question: q.questionText,
+        time: q.timeLimit,
+      })),
       canSkip,
       showAtOnce,
-    });
+    };
+
+    onSubmit(interviewData);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-      <div className="min-h-[350px] min-w-[400px] bg-white p-4 rounded shadow-md">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+      <div className="min-h-[400px] min-w-[500px] bg-white p-4 rounded shadow-md">
         <h2 className="text-black font-bold mb-4">Create Interview</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="text-black block text-sm font-semibold mb-1">Interview Title:</label>
+            <label className="text-black block text-sm font-semibold mb-1">
+              Interview Title:
+            </label>
             <input
               type="text"
               className="border border-gray-200 rounded p-2 w-full"
               placeholder="input..."
               value={interviewTitle}
               onChange={(e) => setInterviewTitle(e.target.value)}
+              required
             />
           </div>
           <div className="mb-4">
-            <label className="text-black block text-sm font-semibold mb-1">Expire Date:</label>
+            <label className="text-black block text-sm font-semibold mb-1">
+              Expire Date:
+            </label>
             <input
               type="date"
               className="border border-gray-300 rounded p-2 w-full"
               value={expireDate}
               onChange={(e) => setExpireDate(e.target.value)}
+              required
             />
           </div>
-          <div className="mb-4 text-black block text-sm font-semibold mb-1">
+          <div className="mb-4">
             <label className="block text-sm font-semibold mb-1">Package</label>
             <select
               className="border p-2 rounded-md w-full block text-black-200 font-semibold mb-1"
               onChange={(e) => {
-                const selectedPackage = e.target.value;
-                if (selectedPackage && !selectedPackages.includes(selectedPackage)) {
+                const selectedPackageId = e.target.value;
+                const selectedPackage = questionPackages.find(
+                  (pkg) => pkg._id === selectedPackageId
+                );
+                if (
+                  selectedPackage &&
+                  !selectedPackages.some((pkg) => pkg._id === selectedPackageId)
+                ) {
                   setSelectedPackages([...selectedPackages, selectedPackage]);
                 }
               }}
               value=""
             >
-              <option value="" disabled>Select Package</option>
-              {questionPackages.map(pkg => (
-                <option key={pkg._id} value={pkg.title}>{pkg.title}</option>
+              <option value="" disabled>
+                Select Package
+              </option>
+              {questionPackages.map((pkg) => (
+                <option key={pkg._id} value={pkg._id}>
+                  {pkg.title}
+                </option>
               ))}
             </select>
 
-            {/* Seçilen paketleri gösterme */}
-            <div className="flex flex-wrap mt-2 ">
+            <div className="flex flex-wrap mt-2">
               {selectedPackages.map((pkg) => (
-                <div key={pkg} className="bg-gray-200 rounded-full px-3 py-1 m-1 flex items-center">
-                  <span>{pkg}</span>
+                <div
+                  key={pkg._id}
+                  className="bg-gray-200 rounded-full px-3 py-1 m-1 flex items-center"
+                >
+                  <span>{pkg.title}</span>
                   <button
                     type="button"
                     className="ml-2 text-red-500"
-                    onClick={() => setSelectedPackages(selectedPackages.filter(p => p !== pkg))}
+                    onClick={() =>
+                      setSelectedPackages(
+                        selectedPackages.filter((p) => p._id !== pkg._id)
+                      )
+                    }
                   >
                     <FaTimes />
                   </button>
@@ -137,30 +230,38 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             </div>
           </div>
 
-          <div className="flex justify-end mb-4">
+          {/* Extra Questions */}
+          <div className="mb-4">
+            <label className="text-black block text-sm font-semibold mb-1">
+              Extra Questions
+            </label>
             <button
               type="button"
               className="flex items-center text-blue-500 text-sm"
               onClick={() => setIsAddQuestionPopupOpen(true)}
             >
               <FaPlus className="mr-1" />
-              Soru Ekle
+              Add Question
             </button>
+
+            <div className="mt-2">
+              {extraQuestions.map((question, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-200 p-2 rounded mt-1 flex justify-between"
+                >
+                  <span>{`${question.questionText} (Time Limit: ${question.timeLimit} mins)`}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Eklenen Soruları Göster */}
-          <div className="mb-4">
-            {extraQuestions.map((question, index) => (
-              <div key={index} className="bg-gray-200 rounded p-2 mb-2">
-                <p><strong>Soru:</strong> {question.questionText}</p>
-                <p><strong>Zaman Limiti:</strong> {question.timeLimit} dakika</p>
-              </div>
-            ))}
-          </div>
-
+          {/* Options: Can Skip and Show At Once */}
           <div className="flex justify-between mb-4">
             <div>
-              <label className="block text-black font-semibold mb-1">Can Skip</label>
+              <label className="block text-black font-semibold mb-1">
+                Can Skip
+              </label>
               <input
                 type="checkbox"
                 checked={canSkip}
@@ -169,7 +270,9 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               />
             </div>
             <div>
-              <label className="block text-black font-semibold mb-1">Show At Once</label>
+              <label className="block text-black font-semibold mb-1">
+                Show At Once
+              </label>
               <input
                 type="checkbox"
                 checked={showAtOnce}
@@ -180,10 +283,17 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
           </div>
 
           <div className="flex justify-between">
-            <button type="button" onClick={onClose} className="bg-red-500 text-white rounded p-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-red-500 text-white rounded p-2"
+            >
               Cancel
             </button>
-            <button type="submit" className="bg-blue-500 text-white rounded p-2">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white rounded p-2"
+            >
               Submit
             </button>
           </div>
@@ -200,26 +310,27 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
   );
 };
 
-// Ana bileşen
+// Main component to manage interviews and render the list
 const JobPositionForm = () => {
+  const { interviews, fetchInterviews, createInterview, deleteInterview } =
+    useInterviewStore();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [questionPackages, setQuestionPackages] = useState([]);
-  const [interviews, setInterviews] = useState([]);
+  const [showInfo, setShowInfo] = useState(null); // Interview bilgisi için
 
   useEffect(() => {
-    // Soru paketlerini yüklemek için bir API çağrısı yapabilirsiniz.
     const loadQuestionPackages = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/packages');
+        const response = await fetch("http://localhost:8000/api/packages");
         const data = await response.json();
         setQuestionPackages(data);
       } catch (error) {
-        console.error('Error loading question packages:', error);
+        console.error("Error loading question packages:", error);
       }
     };
-
     loadQuestionPackages();
-  }, []);
+    fetchInterviews();
+  }, [fetchInterviews]);
 
   const handleAddJobPosition = () => {
     setIsPopupOpen(true);
@@ -229,40 +340,32 @@ const JobPositionForm = () => {
     setIsPopupOpen(false);
   };
 
-  const handleSubmit = (data) => {
-    setInterviews([...interviews, data]);
+  const handleSubmit = async (data) => {
+    console.log("data", data);
+    await createInterview(data);
     setIsPopupOpen(false);
+  };
+
+  const handleCopyLink = (id) => {
+    const link = `http://localhost:8000/interview/${id}`;
+    navigator.clipboard.writeText(link);
+    alert("Link copied to clipboard!");
+  };
+
+  const handleDelete = async (id) => {
+    await deleteInterview(id);
   };
 
   return (
     <div>
       <div className="flex items-center mb-4">
         <h2 className="text-lg font-bold mr-4">Interview List</h2>
-        <button onClick={handleAddJobPosition} className="bg-blue-500 text-white rounded p-2">
+        <button
+          onClick={handleAddJobPosition}
+          className="bg-blue-500 text-white rounded p-2"
+        >
           + Create Interview
         </button>
-      </div>
-
-      {/* Interview listesi */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {interviews.map((interview, index) => (
-          <div key={index} className="border p-4 rounded-lg shadow-md bg-white">
-            <h3 className="text-lg font-bold mb-2">{interview.interviewTitle}</h3>
-            <p><strong>Expire Date:</strong> {interview.expireDate}</p>
-            <p><strong>Packages:</strong> {interview.packages.join(', ')}</p>
-            <p><strong>Can Skip:</strong> {interview.canSkip ? 'Yes' : 'No'}</p>
-            <p><strong>Show At Once:</strong> {interview.showAtOnce ? 'Yes' : 'No'}</p>
-            <div>
-              <strong>Extra Questions:</strong>
-              {interview.extraQuestions.map((question, qIndex) => (
-                <div key={qIndex} className="bg-gray-100 rounded p-2 mt-2">
-                  <p><strong>Q:</strong> {question.questionText}</p>
-                  <p><strong>Time Limit:</strong> {question.timeLimit} dk</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
 
       {isPopupOpen && (
@@ -270,6 +373,54 @@ const JobPositionForm = () => {
           onClose={handlePopupClose}
           onSubmit={handleSubmit}
           questionPackages={questionPackages}
+        />
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        {interviews &&
+          interviews.map((interview) => (
+            <div
+              key={interview._id}
+              className="border rounded p-4 shadow-md relative"
+            >
+              <div
+                className="absolute top-2 left-2 cursor-pointer"
+                onClick={() => setShowInfo(interview._id)}
+              >
+                <FaInfoCircle />
+              </div>
+              <div className="absolute top-2 right-2 flex space-x-2">
+                <FaCopy
+                  className="cursor-pointer"
+                  onClick={() => handleCopyLink(interview._id)}
+                />
+                <FaTrashAlt
+                  className="cursor-pointer"
+                  onClick={() => handleDelete(interview._id)}
+                />
+              </div>
+              <h3 className="text-black font-bold mb-2">{interview.title}</h3>
+              <p>Total: {interview.questions?.length || 0} questions</p>
+              <p>
+                On Hold:{" "}
+                {Math.floor(Math.random() * (interview.questions?.length || 0))}
+              </p>
+              <div className="flex justify-between mt-4">
+                <span>
+                  {interview.isPublished ? "Published" : "Unpublished"}
+                </span>
+                <button className="bg-blue-500 text-white rounded p-2">
+                  See Videos
+                </button>
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {showInfo && (
+        <InterviewInfoPopup
+          interviewId={showInfo}
+          onClose={() => setShowInfo(null)}
         />
       )}
     </div>
