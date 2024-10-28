@@ -70,7 +70,7 @@ const VideoInterviewPage = () => {
       <div className="controls mb-4">
         {!isRecording && (
           <button className="start-btn bg-green-500 text-white px-4 py-2 rounded shadow-md" onClick={handleStartRecording}>
-            Start Recording
+            Mülakata Başla
           </button>
         )}
         {isRecording && (

@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import { createInterview } from '../services/interviewService';
 
-// Create Interview Controller
 export const createInterviewController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, packages, questions, expireDate, canSkip, showAtOnce } = req.body;
 
-    // Construct interview data object
     const interviewData = {
       title,
       packages,
@@ -16,7 +14,6 @@ export const createInterviewController = async (req: Request, res: Response): Pr
       showAtOnce
     };
 
-    // Create interview using the service
     const newInterview = await createInterview(interviewData);
 
     res.status(201).json({

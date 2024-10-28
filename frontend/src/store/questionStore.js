@@ -1,129 +1,36 @@
+// stores/useUserStore.js
 import { create } from "zustand";
 import axios from "axios";
 
-const useQuestionStore = create((set) => ({
-  questionPackages: [],
+const useUserStore = create((set) => ({
+  personalInfo: {
+    name: "",
+    surname: "",
+    email: "",
+    phone: ""
+  },
   loading: false,
   error: null,
 
-  // Fetch all question packages
-  fetchQuestionPackages: async () => {
-    set({ loading: true });
-    try {
-      const response = await axios.get("http://localhost:8000/api/packages");
-      set({ questionPackages: response.data, loading: false });
-      console.log(response.data);
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || error.message,
-        loading: false,
-      });
-    }
+  // Set personal information in state
+  setPersonalInfo: (info) => {
+    set({ personalInfo: { ...info } });
   },
 
-  // Create a new question package
-  createQuestionPackage: async (title) => {
-    set({ loading: true });
-    console.log("title");
-    try {
-      const response = await axios.post("http://localhost:8000/api/packages", {
-        title,
-      });
-      console.log(response.data);
-      console.log("deneme");
-      set((state) => ({
-        questionPackages: [...state.questionPackages, response.data],
-        loading: false,
-      }));
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || error.message,
-        loading: false,
-      });
-    }
-  },
-
-  // Add a question to a question package
-  addQuestionToPackage: async (packageId, question, time) => {
+  // Submit personal information to the backend
+  submitPersonalInfo: async () => {
     set({ loading: true });
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/packages/${packageId}/questions`,
-        {
-          question,
-          time,
-        }
-      );
-      set((state) => ({
-        questionPackages: state.questionPackages.map((pkg) =>
-          pkg._id === packageId ? response.data : pkg
-        ),
-        loading: false,
-      }));
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || error.message,
-        loading: false,
+      const response = await axios.post("http://localhost:8000/api/users/create", {
+        name: personalInfo.name,
+        surname: personalInfo.surname,
+        email: personalInfo.email,
+        phone: personalInfo.phone
       });
-    }
-  },
-
-  // Update a question package
-  updateQuestionPackage: async (packageId, updatedData) => {
-    set({ loading: true });
-    console.log("updatedData", updatedData);
-    try {
-      const response = await axios.put(
-        `http://localhost:8000/api/packages/${packageId}`,
-        updatedData
-      );
-      set((state) => ({
-        questionPackages: state.questionPackages.map((pkg) =>
-          pkg._id === packageId ? response.data : pkg
-        ),
-        loading: false,
-      }));
+      console.log("User created:", response.data);
+      set({ loading: false });
     } catch (error) {
-      set({
-        error: error.response?.data?.message || error.message,
-        loading: false,
-      });
-    }
-  },
-
-  // Delete a question package
-  deleteQuestionPackage: async (packageId) => {
-    set({ loading: true });
-    try {
-      await axios.delete(`http://localhost:8000/api/packages/${packageId}`);
-      set((state) => ({
-        questionPackages: state.questionPackages.filter(
-          (pkg) => pkg._id !== packageId
-        ),
-        loading: false,
-      }));
-    } catch (error) {
-      set({
-        error: error.response?.data?.message || error.message,
-        loading: false,
-      });
-    }
-  },
-
-  // Delete a question from a package
-  deleteQuestionFromPackage: async (packageId, questionId) => {
-    set({ loading: true });
-    try {
-      const response = await axios.delete(
-        `http://localhost:8000/api/packages/${packageId}/questions/${questionId}`
-      );
-      set((state) => ({
-        questionPackages: state.questionPackages.map((pkg) =>
-          pkg._id === packageId ? response.data : pkg
-        ),
-        loading: false,
-      }));
-    } catch (error) {
+      console.error("Error submitting personal information:", error);
       set({
         error: error.response?.data?.message || error.message,
         loading: false,
@@ -132,4 +39,4 @@ const useQuestionStore = create((set) => ({
   },
 }));
 
-export default useQuestionStore;
+export default useUserStore;

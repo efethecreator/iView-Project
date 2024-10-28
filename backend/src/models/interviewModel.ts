@@ -14,7 +14,7 @@ export interface IInterview extends Document {
 }
 
 // Mongoose schema for Interview
-const InterviewSchema: Schema = new Schema<IInterview>({
+const InterviewSchema: Schema<IInterview> = new Schema<IInterview>({
   title: {
     type: String,
     required: true,
@@ -22,7 +22,7 @@ const InterviewSchema: Schema = new Schema<IInterview>({
   },
   packages: [{
     type: Schema.Types.ObjectId,
-    ref: 'QuestionPackage', // Reference to QuestionPackage
+    ref: 'QuestionPackage', 
     required: true
   }],
   questions: {
@@ -46,13 +46,13 @@ const InterviewSchema: Schema = new Schema<IInterview>({
   },
   interviewLink: {
     type: String,
-    default: uuidv4 // Automatically generates a UUID for the interview link
+    default: uuidv4 // Generates UUIDv4 for each interview
   },
   users: [{
     type: Schema.Types.ObjectId,
-    ref: 'User', // Reference to User model
+    ref: 'User', 
     required: true,
-    default: [] // Initially empty array for users
+    default: [] 
   }]
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields

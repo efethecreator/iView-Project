@@ -2,7 +2,6 @@ import Interview, { IInterview } from '../models/interviewModel'; // Importing I
 
 // Create a new interview
 export const createInterview = async (data: Partial<IInterview>): Promise<IInterview> => {
-  // Initialize empty users array and generate interview link
   const interviewData = {
     ...data,
     interviewLink: '', // This will be automatically filled by the schema (UUIDv4)
