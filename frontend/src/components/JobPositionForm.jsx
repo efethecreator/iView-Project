@@ -403,7 +403,7 @@ const JobPositionForm = () => {
                   className="text-green-500 hover:text-green-700 transition-colors"
                   whileHover={{ scale: 1.2, rotate: -15 }}
                 >
-                  <FaCopy className="text-xl"/>
+                  <FaCopy className="text-xl" />
                 </motion.button>
                 <motion.button
                   className="text-red-500 hover:text-red-700 transition-colors"
@@ -437,7 +437,12 @@ const JobPositionForm = () => {
                 <span>
                   {interview.isPublished ? "Published" : "Unpublished"}
                 </span>
-                <button className="text-blue-500 hover:underline">
+                <button
+                  className="text-blue-500 hover:underline"
+                  onClick={() =>
+                    (window.location.href = `/admin-dashboard/video-collection/${interview._id}`)
+                  }
+                >
                   See Videos &gt;
                 </button>
               </div>

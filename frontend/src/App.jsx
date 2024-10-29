@@ -3,43 +3,53 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdminLogin from './pages/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import QuestionManagement from './components/QuestionManagement';
-import ManagePackage from './components/ManagePackage'; // Yeni düzenleme sayfası
+import ManagePackage from './components/ManagePackage';
 import CandidateInterviews from './pages/CandidateInterviews';
-import VideoCollection from './components/VideoCollection';
-import useQuestionStore from './store/questionStore'; // Zustand store'u içe aktar
+import VideoCollectionPage from './pages/VideoCollectionPage';
+import useQuestionStore from './store/questionStore';
 
 const App = () => {
-  const { fetchQuestionPackages } = useQuestionStore(); // Store'dan fonksiyonu al
+  const { fetchQuestionPackages } = useQuestionStore();
   const [questionPackages, setQuestionPackages] = useState([]);
 
   useEffect(() => {
     const loadPackages = async () => {
-      const packages = await fetchQuestionPackages(); // Paketleri yükle
+      const packages = await fetchQuestionPackages();
       setQuestionPackages(packages);
     };
     loadPackages();
   }, [fetchQuestionPackages]);
 
   const getSelectedPackage = (packageId) => {
-    return questionPackages.find(pkg => pkg._id === packageId); // ID'ye göre paketi bul
+    return questionPackages.find(pkg => pkg._id === packageId);
   };
 
   return (
     <Router>
       <Routes>
+        {/* Ana giriş sayfası */}
         <Route path="/" element={<AdminLogin />} />
+
+        {/* Admin paneli */}
         <Route path="/admin-dashboard" element={<AdminLayout />}>
+          {/* Soru yönetimi */}
           <Route 
             path="questions" 
             element={<QuestionManagement setQuestionPackages={setQuestionPackages} />} 
           />
+
+          {/* Paket düzenleme sayfası */}
           <Route 
             path="questions/manage/:packageId" 
             element={<ManagePackage questionPackages={questionPackages} />} 
-          /> {/* Düzenleme sayfası */}
+          />
+
+          {/* Aday mülakat listesi */}
           <Route path="interviews" element={<CandidateInterviews />} />
+
+          {/* Video koleksiyon sayfası */}
+          <Route path="video-collection/:interviewID" element={<VideoCollectionPage />} />
         </Route>
-        <Route path="/interviews/videos/:position" element={<VideoCollection />} />
       </Routes>
     </Router>
   );
