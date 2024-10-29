@@ -9,27 +9,15 @@ interface Question {
 // Interface for Interview schema
 export interface IInterview extends Document {
   title: string;
-  packages: packages[]; // Referencing QuestionPackage
-  questions: Question[]; // Assuming questions are strings
+  packages: Types.ObjectId[]; // Referencing QuestionPackage
+  questions: Question[];
   expireDate: Date;
   canSkip: boolean;
   showAtOnce: boolean;
-  interviewLink?: string; // Optional field
-  users: Types.ObjectId[]; // Referencing Users
+  interviewLink?: string;
+  users: Types.ObjectId[];
 }
 
-interface packages extends Document {
-  packageId: string;
-}
-
-const packagesSchema = new Schema<packages>({
-  packageId: {
-    type: String,
-    required: true,
-  },
-});
-
-// Mongoose schema for Interview
 const InterviewSchema: Schema = new Schema<IInterview>(
   {
     title: {
@@ -37,21 +25,26 @@ const InterviewSchema: Schema = new Schema<IInterview>(
       required: true,
       trim: true,
     },
-    packages: { type: [packagesSchema], required: true, default: [] },
+    packages: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "QuestionPackage", // Referans olarak QuestionPackage modelini kullanıyoruz
+        required: true,
+      },
+    ],
     questions: {
       type: [
         {
           question: {
             type: String,
-            required: false,
+            required: true,
           },
           time: {
             type: Number,
-            required: false,
+            required: true,
           },
         },
       ],
-      required: false,
       default: [],
     },
     expireDate: {
@@ -70,23 +63,21 @@ const InterviewSchema: Schema = new Schema<IInterview>(
     },
     interviewLink: {
       type: String,
-      default: () => uuidv4(), // Automatically generates a UUID for the interview link
+      default: () => uuidv4(),
     },
     users: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User", // Reference to User model
-        required: false,
-        default: [], // Initially empty array for users
+        ref: "User",
+        default: [],
       },
     ],
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
-// Mongoose model for Interview
 const Interview = mongoose.model<IInterview>("Interview", InterviewSchema);
 
 export default Interview;

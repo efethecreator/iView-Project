@@ -1,5 +1,6 @@
 // src/stores/modalStore.js
 import { create } from "zustand";
+import axios from "axios";
 
 const useModalStore = create((set) => ({
   isOpen: false,
@@ -29,22 +30,17 @@ const useModalStore = create((set) => ({
     const { personalInfo } = useModalStore.getState();
 
     try {
-      const response = await fetch("http://localhost:8000/api/users/create", {
-        method: "POST",
+      const response = await axios.post("http://localhost:8000/api/users/create", personalInfo, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(personalInfo),
       });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
 
       alert("Personal information submitted successfully");
       set({ isOpen: false });
     } catch (error) {
       console.error("Error submitting personal information:", error);
+      alert("Error submitting personal information");
     }
   },
 }));
