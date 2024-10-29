@@ -43,7 +43,7 @@
 
     return (
       <div className="bg-white min-h-screen p-4"> {/* Arka plan beyaz yapıldı */}
-        <h2 className="text-2xl text-gray-800 mb-4">Interview List</h2>
+        
         <JobPositionForm 
           newJobTitle={newJobTitle}
           setNewJobTitle={setNewJobTitle}

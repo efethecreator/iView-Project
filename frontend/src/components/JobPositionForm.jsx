@@ -1,12 +1,7 @@
 // Interview frontend component linked with interview store
 import React, { useState, useEffect } from "react";
-import {
-  FaTimes,
-  FaPlus,
-  FaInfoCircle,
-  FaCopy,
-  FaTrashAlt,
-} from "react-icons/fa";
+import { FaTimes, FaPlus, FaInfoCircle, FaCopy, FaTrash } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import useInterviewStore from "../store/useInterviewStore";
 
 const InterviewInfoPopup = ({ interviewId, onClose }) => {
@@ -14,7 +9,7 @@ const InterviewInfoPopup = ({ interviewId, onClose }) => {
 
   useEffect(() => {
     if (interviewId) {
-      fetchInterviewQuestions(interviewId); // Soruları çekmek için API çağrısı
+      fetchInterviewQuestions(interviewId);
     }
   }, [interviewId, fetchInterviewQuestions]);
 
@@ -316,7 +311,7 @@ const JobPositionForm = () => {
     useInterviewStore();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [questionPackages, setQuestionPackages] = useState([]);
-  const [showInfo, setShowInfo] = useState(null); // Interview bilgisi için
+  const [showInfo, setShowInfo] = useState(null);
 
   useEffect(() => {
     const loadQuestionPackages = async () => {
@@ -341,7 +336,6 @@ const JobPositionForm = () => {
   };
 
   const handleSubmit = async (data) => {
-    console.log("data", data);
     await createInterview(data);
     setIsPopupOpen(false);
   };
@@ -356,16 +350,27 @@ const JobPositionForm = () => {
     await deleteInterview(id);
   };
 
+  const getTotalQuestionsCount = (interview) => {
+    const extraQuestionsCount = interview.questions?.length || 0;
+    const selectedPackage = questionPackages.find(
+      (pkg) => pkg.id === interview.selectedPackage
+    );
+    const packageQuestionsCount = selectedPackage?.questions.length || 0;
+    return extraQuestionsCount + packageQuestionsCount;
+  };
+
   return (
-    <div>
-      <div className="flex items-center mb-4">
-        <h2 className="text-lg font-bold mr-4">Interview List</h2>
-        <button
+    <div className="p-6 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+      <div className="flex items-center justify-center mb-6">
+        <h2 className="text-3xl text-gray-800 font-semibold">Interview List</h2>
+        <motion.button
           onClick={handleAddJobPosition}
-          className="bg-blue-500 text-white rounded p-2"
+          className="text-blue-500 hover:text-blue-700 transition-colors p-3 "
+          whileHover={{ rotate: 15, scale: 1.2 }}
+          whileTap={{ rotate: -15, scale: 0.9 }}
         >
-          + Create Interview
-        </button>
+          <FaPlus className="text-3xl" />
+        </motion.button>
       </div>
 
       {isPopupOpen && (
@@ -376,41 +381,69 @@ const JobPositionForm = () => {
         />
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {interviews &&
           interviews.map((interview) => (
             <div
               key={interview._id}
-              className="border rounded p-4 shadow-md relative"
+              className="bg-white border rounded-lg p-4 shadow-lg relative"
             >
-              <div
-                className="absolute top-2 left-2 cursor-pointer"
-                onClick={() => setShowInfo(interview._id)}
-              >
-                <FaInfoCircle />
+              <div className="absolute top-2 left-2">
+                <motion.button
+                  onClick={() => setShowInfo(interview._id)}
+                  className="text-blue-500 hover:text-blue-700 transition-colors"
+                  whileHover={{ scale: 1.2 }}
+                >
+                  <FaInfoCircle className="text-xl" />
+                </motion.button>
               </div>
               <div className="absolute top-2 right-2 flex space-x-2">
-                <FaCopy
-                  className="cursor-pointer"
+                <motion.button
                   onClick={() => handleCopyLink(interview._id)}
-                />
-                <FaTrashAlt
-                  className="cursor-pointer"
-                  onClick={() => handleDelete(interview._id)}
-                />
+                  className="text-green-500 hover:text-green-700 transition-colors"
+                  whileHover={{ scale: 1.2, rotate: -15 }}
+                >
+                  <FaCopy className="text-xl" />
+                </motion.button>
+                <motion.button
+                  className="text-red-500 hover:text-red-700 transition-colors"
+                  whileHover={{ rotate: 15, scale: 1.2 }}
+                  whileTap={{ rotate: -15, scale: 0.9 }}
+                >
+                  <FaTrash className="text-xl" />
+                </motion.button>
               </div>
-              <h3 className="text-black font-bold mb-2">{interview.title}</h3>
-              <p>Total: {interview.questions?.length || 0} questions</p>
-              <p>
-                On Hold:{" "}
-                {Math.floor(Math.random() * (interview.questions?.length || 0))}
-              </p>
-              <div className="flex justify-between mt-4">
+              <h3 className="text-black font-semibold mb-2 mt-5 text-2xl">
+                {interview.title}
+              </h3>
+              <p className="text-sm mb-2">Candidates:</p>
+              <div className="bg-gray-300 rounded-lg p-2 flex justify-around mb-4">
+                <div className="text-center border-l border-gray-400">
+                  <p className="text-xs text-gray-600 ml-2">TOTAL</p>
+                  <p className="text-xl font-semibold">
+                    {getTotalQuestionsCount(interview)}
+                  </p>
+                </div>
+                <div className="text-center border-l border-gray-400">
+                  <p className="text-xs text-gray-600 ml-2">ON HOLD</p>
+                  <p className="text-xl font-semibold">
+                    {Math.floor(
+                      Math.random() * getTotalQuestionsCount(interview)
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-between mt-4 items-center text-sm text-gray-500">
                 <span>
                   {interview.isPublished ? "Published" : "Unpublished"}
                 </span>
-                <button className="bg-blue-500 text-white rounded p-2">
-                  See Videos
+                <button
+                  className="text-blue-500 hover:underline"
+                  onClick={() =>
+                    (window.location.href = `/admin-dashboard/video-collection/${interview._id}`)
+                  }
+                >
+                  See Videos &gt;
                 </button>
               </div>
             </div>
