@@ -20,25 +20,39 @@ const VideoRecorder = () => {
   const mediaRecorderRef = useRef(null);
   const chunks = useRef([]);
   const { packageId } = useParams(); // packageId URL parametresi
+  const [timeLeft, setTimeLeft] = useState(0); // Zaman takibi için state
 
-  // Component mount edildiğinde soruları backend'den alıyoruz
+  // Soruları backend'den çekme
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const response = await axios.get(`/api/packages/${packageId}`);
-        console.log(response.data);  // API yanıtını kontrol ediyoruz
         if (response.data && response.data.questions) {
-          setQuestions(response.data.questions); // Soruları alıyoruz
+          setQuestions(response.data.questions); // Soruları ayarlıyoruz
+          setTimeLeft(response.data.questions[0].time); // İlk sorunun süresi
         }
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
     };
-  
+
     if (packageId) {
       fetchQuestions();
     }
   }, [packageId]);
+
+  // Zamanlayıcı (Soru süresini yönetme)
+  useEffect(() => {
+    if (timeLeft > 0 && !isInterviewComplete) {
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1); // Geri sayım
+      }, 1000);
+
+      return () => clearTimeout(timer); // Temizlik
+    } else if (timeLeft === 0 && !isInterviewComplete) {
+      handleNextQuestion(); // Zaman bittiğinde sonraki soruya geç
+    }
+  }, [timeLeft, isInterviewComplete]);
 
   // Kişisel bilgileri güncelleme fonksiyonu
   const handleInputChange = (e) => {
@@ -81,9 +95,10 @@ const VideoRecorder = () => {
   // Bir sonraki soruya geçiş fonksiyonu
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prevIndex) => prevIndex + 1); // Bir sonraki soruya geç
+      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+      setTimeLeft(questions[currentQuestionIndex + 1].time); // Yeni sorunun süresi
     } else {
-      setIsInterviewComplete(true); // Sorular bittiğinde tamamlandı olarak işaretle
+      setIsInterviewComplete(true); // Sorular bittiğinde
     }
   };
 
@@ -115,23 +130,26 @@ const VideoRecorder = () => {
   };
 
   // Videoyu backend'e yükleme fonksiyonu
-  const handleUploadVideo = async () => {
-    const formData = new FormData();
-    formData.append(
-      "video",
-      new Blob([videoURL], { type: "video/mp4" }),
-      "interview.mp4"
-    );
+  // Videoyu yeni API'ye yükleme fonksiyonu
+const handleUploadVideo = async () => {
+  const formData = new FormData();
+  formData.append("file", new Blob([videoURL], { type: "video/mp4" }), "interview.mp4");
 
-    try {
-      await axios.post("http://localhost:5000/api/upload-video", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      alert("Video başarıyla yüklendi!");
-    } catch (error) {
-      console.error("Error uploading video:", error);
-    }
-  };
+  // Proje bilgileri - Bu değerleri size özel olarak ayarlamanız gerekebilir
+  formData.append("ProjectName", "ProjeAdi"); // Size verilen proje adını burada girin
+  formData.append("BucketName", "BucketAdi"); // Size verilen bucket adını burada girin
+  formData.append("AccessKey", "AccessKey"); // Size verilen AccessKey burada olacak
+
+  try {
+    await axios.post("http://tkk04oksokwwgwswgg84cg4w.5.253.143.162.sslip.io/s3Space", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    alert("Video başarıyla yüklendi!");
+  } catch (error) {
+    console.error("Error uploading video:", error);
+  }
+};
+
 
   return (
     <div className="flex bg-gray-100 p-6 font-montserrat">
@@ -159,7 +177,7 @@ const VideoRecorder = () => {
           )}
           {isRecording && (
             <button
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
               onClick={handleStopRecording}
             >
               Mülakatı Bitir
@@ -174,7 +192,7 @@ const VideoRecorder = () => {
         {!isInterviewComplete && questions.length > 0 ? (
           <div>
             <p>{questions[currentQuestionIndex].question}</p>
-            <p>Zaman: {questions[currentQuestionIndex].time} saniye</p> {/* Zamanı göster */}
+            <p>Zaman: {timeLeft} saniye</p> {/* Zamanı göster */}
             <button
               className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
               onClick={handleNextQuestion}

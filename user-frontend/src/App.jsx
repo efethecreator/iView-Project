@@ -7,6 +7,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<VideoRecorder />} />
+        <Route path="/interview/:packageId" element={<VideoRecorder />} />
         <Route path="/interview-end" element={<InterviewEnd />} />
       </Routes>
     </Router>
