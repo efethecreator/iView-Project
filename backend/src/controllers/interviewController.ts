@@ -8,8 +8,6 @@ import {
 import { QuestionPackageModel } from "../models/question-package.model";
 import mongoose from "mongoose";
 
-
-
 // Create Interview Controller
 export const createInterviewController = async (
   req: Request,
@@ -61,7 +59,7 @@ export const GetInterviewQuestions = async (req: Request, res: Response) => {
     const questions = await Promise.all(
       interview.packages.map(async (pkgId) => {
         const questionPackage = await QuestionPackageModel.findById(
-          pkgId
+          pkgId.packageId
         ); // Package ID ile sorgu
 
         return questionPackage?.questions.map((question) => ({

@@ -341,7 +341,7 @@ const JobPositionForm = () => {
   };
 
   const handleCopyLink = (id) => {
-    const link = `http://localhost:5000/interview/${id}`;
+    const link = `http://localhost:8000/interview/${id}`;
     navigator.clipboard.writeText(link);
     alert("Link copied to clipboard!");
   };
@@ -406,6 +406,7 @@ const JobPositionForm = () => {
                   <FaCopy className="text-xl" />
                 </motion.button>
                 <motion.button
+                  onClick={() => handleDelete(interview._id)}
                   className="text-red-500 hover:text-red-700 transition-colors"
                   whileHover={{ rotate: 15, scale: 1.2 }}
                   whileTap={{ rotate: -15, scale: 0.9 }}

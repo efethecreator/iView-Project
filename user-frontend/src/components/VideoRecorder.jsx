@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "./Modal";
 import axios from "axios";
-import { useParams } from "react-router-dom"; // packageId parametresini almak için kullanıyoruz
+import { useParams } from "react-router-dom"; 
+import useVideoStore from '../stores/videoStore'; // Import your video store
 
 const VideoRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -19,42 +20,28 @@ const VideoRecorder = () => {
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const chunks = useRef([]);
-  const { packageId } = useParams(); // packageId URL parametresi
-  const [timeLeft, setTimeLeft] = useState(0); // Zaman takibi için state
+  const { packageId } = useParams(); 
 
-  // Soruları backend'den çekme
+  const uploadVideo = useVideoStore((state) => state.uploadVideo); // Access the uploadVideo function from the store
+
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const response = await axios.get(`/api/packages/${packageId}`);
+        console.log(response.data);
         if (response.data && response.data.questions) {
-          setQuestions(response.data.questions); // Soruları ayarlıyoruz
-          setTimeLeft(response.data.questions[0].time); // İlk sorunun süresi
+          setQuestions(response.data.questions); 
         }
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
     };
-
+  
     if (packageId) {
       fetchQuestions();
     }
   }, [packageId]);
 
-  // Zamanlayıcı (Soru süresini yönetme)
-  useEffect(() => {
-    if (timeLeft > 0 && !isInterviewComplete) {
-      const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1); // Geri sayım
-      }, 1000);
-
-      return () => clearTimeout(timer); // Temizlik
-    } else if (timeLeft === 0 && !isInterviewComplete) {
-      handleNextQuestion(); // Zaman bittiğinde sonraki soruya geç
-    }
-  }, [timeLeft, isInterviewComplete]);
-
-  // Kişisel bilgileri güncelleme fonksiyonu
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setPersonalInfo((prevInfo) => ({
@@ -63,7 +50,6 @@ const VideoRecorder = () => {
     }));
   };
 
-  // Video kaydını başlatma fonksiyonu
   const handleStartRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -92,17 +78,14 @@ const VideoRecorder = () => {
     }
   };
 
-  // Bir sonraki soruya geçiş fonksiyonu
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-      setTimeLeft(questions[currentQuestionIndex + 1].time); // Yeni sorunun süresi
     } else {
-      setIsInterviewComplete(true); // Sorular bittiğinde
+      setIsInterviewComplete(true);
     }
   };
 
-  // Kişisel bilgileri backend'e gönderme fonksiyonu
   const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("name", personalInfo.name);
@@ -115,45 +98,24 @@ const VideoRecorder = () => {
         headers: { "Content-Type": "application/json" },
       });
       alert("Kişisel bilgiler başarıyla gönderildi!");
-      setIsModalOpen(false); // Modal'ı kapat
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Error submitting personal information:", error);
     }
   };
 
-  // Video kaydını durdurma fonksiyonu
-  const handleStopRecording = () => {
+  const handleStopRecording = async () => {
     mediaRecorderRef.current.stop();
     videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
     setIsRecording(false);
-    handleUploadVideo();
+
+    // Prepare the video blob for upload
+    const videoBlob = new Blob(chunks.current, { type: "video/mp4" });
+    await uploadVideo(videoBlob); // Upload the video using the store
   };
-
-  // Videoyu backend'e yükleme fonksiyonu
-  // Videoyu yeni API'ye yükleme fonksiyonu
-const handleUploadVideo = async () => {
-  const formData = new FormData();
-  formData.append("file", new Blob([videoURL], { type: "video/mp4" }), "interview.mp4");
-
-  // Proje bilgileri - Bu değerleri size özel olarak ayarlamanız gerekebilir
-  formData.append("ProjectName", "ProjeAdi"); // Size verilen proje adını burada girin
-  formData.append("BucketName", "BucketAdi"); // Size verilen bucket adını burada girin
-  formData.append("AccessKey", "AccessKey"); // Size verilen AccessKey burada olacak
-
-  try {
-    await axios.post("http://tkk04oksokwwgwswgg84cg4w.5.253.143.162.sslip.io/s3Space", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    alert("Video başarıyla yüklendi!");
-  } catch (error) {
-    console.error("Error uploading video:", error);
-  }
-};
-
 
   return (
     <div className="flex bg-gray-100 p-6 font-montserrat">
-      {/* Video Recording Section */}
       <div className="w-3/4">
         <h1 className="text-2xl font-bold mb-4">Video Recorder</h1>
 
@@ -177,7 +139,7 @@ const handleUploadVideo = async () => {
           )}
           {isRecording && (
             <button
-              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
               onClick={handleStopRecording}
             >
               Mülakatı Bitir
@@ -186,13 +148,12 @@ const handleUploadVideo = async () => {
         </div>
       </div>
 
-      {/* Question Display Section */}
       <div className="w-1/4 bg-white p-4 rounded-md shadow-md ml-6">
         <h2 className="text-lg font-semibold mb-4">Questions</h2>
         {!isInterviewComplete && questions.length > 0 ? (
           <div>
             <p>{questions[currentQuestionIndex].question}</p>
-            <p>Zaman: {timeLeft} saniye</p> {/* Zamanı göster */}
+            <p>Zaman: {questions[currentQuestionIndex].time} saniye</p>
             <button
               className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
               onClick={handleNextQuestion}

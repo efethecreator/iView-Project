@@ -1,4 +1,7 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const { MASTER_ADMIN_EMAIL, MASTER_ADMIN_PASSWORD } = process.env;
 

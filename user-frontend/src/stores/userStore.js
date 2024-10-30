@@ -29,6 +29,12 @@ const useModalStore = create((set) => ({
   handleSubmit: async () => {
     const { personalInfo } = useModalStore.getState();
 
+    // Basic validation
+    if (!personalInfo.name || !personalInfo.surname || !personalInfo.email || !personalInfo.phone) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:8000/api/users/create", personalInfo, {
         headers: {
@@ -37,10 +43,10 @@ const useModalStore = create((set) => ({
       });
 
       alert("Personal information submitted successfully");
-      set({ isOpen: false });
+      set({ isOpen: false }); // Close the modal after successful submission
     } catch (error) {
       console.error("Error submitting personal information:", error);
-      alert("Error submitting personal information");
+      alert(`Error submitting personal information: ${error.response ? error.response.data.message : error.message}`);
     }
   },
 }));
