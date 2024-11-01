@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import useUserStore from "../stores/userStore"; // store'u import edin
+import useUserStore from "../stores/userStore"; 
 
 const UserInformation = ({ isOpen }) => { 
-  const [isKvkkAccepted, setIsKvkkAccepted] = useState(false); // KVKK onayı durumu
+  const [isKvkkAccepted, setIsKvkkAccepted] = useState(false); 
   const personalInfo = useUserStore((state) => state.personalInfo);
   const setPersonalInfo = useUserStore((state) => state.setPersonalInfo);
   const createUser = useUserStore((state) => state.createUser);
@@ -19,10 +19,10 @@ const UserInformation = ({ isOpen }) => {
     }
   };
 
-  if (!isOpen) return null; // Modal kapalıysa render edilmez
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-10">
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h2 className="text-xl font-bold mb-4">Personal Information</h2>
         <input
@@ -73,7 +73,7 @@ const UserInformation = ({ isOpen }) => {
 
         <button
           onClick={handleSubmit}
-          disabled={!isKvkkAccepted} // Onay verilmediyse buton devre dışı
+          disabled={!isKvkkAccepted}
           className={`py-2 px-4 mt-4 rounded ${isKvkkAccepted ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
         >
           Submit
