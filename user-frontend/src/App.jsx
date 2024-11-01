@@ -1,17 +1,15 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import VideoRecorder from './components/VideoRecorder';
-import InterviewEnd from './pages/InterviewEnd';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import VideoRecorderPage from "./pages/videoRecorderPage"; // VideoRecorderPage bileşenini dahil edin
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<VideoRecorder />} />
-        <Route path="/interview/:packageId" element={<VideoRecorder />} />
-        <Route path="/interview-end" element={<InterviewEnd />} />
+        <Route path="/" element={<VideoRecorderPage />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

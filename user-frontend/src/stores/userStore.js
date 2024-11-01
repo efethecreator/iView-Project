@@ -1,9 +1,8 @@
-// src/stores/modalStore.js
-import { create } from "zustand";
-import axios from "axios";
+import { create } from 'zustand';
+import axios from 'axios';
 
-const useModalStore = create((set) => ({
-  isOpen: false,
+const useUserStore = create((set, get) => ({
+  userId: null,
   personalInfo: {
     name: "",
     surname: "",
@@ -11,44 +10,26 @@ const useModalStore = create((set) => ({
     phone: "",
   },
 
-  // Open or close the modal
-  setIsOpen: (isOpen) => set({ isOpen }),
-
-  // Update personal information
-  handleInputChange: (e) => {
-    const { name, value } = e.target;
+  // Kullanıcı bilgilerini güncelle
+  setPersonalInfo: (info) =>
     set((state) => ({
-      personalInfo: {
-        ...state.personalInfo,
-        [name]: value,
-      },
-    }));
-  },
+      personalInfo: { ...state.personalInfo, ...info },
+    })),
 
-  // Submit the personal information
-  handleSubmit: async () => {
-    const { personalInfo } = useModalStore.getState();
-
-    // Basic validation
-    if (!personalInfo.name || !personalInfo.surname || !personalInfo.email || !personalInfo.phone) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
+  // Yeni bir kullanıcı oluştur ve userId al
+  createUser: async () => {
     try {
-      const response = await axios.post("http://localhost:8000/api/users/create", personalInfo, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const { personalInfo } = get(); // useUserStore.getState yerine get kullanıldı
+      const response = await axios.post('http://localhost:8000/api/users/create', personalInfo);
+      set({
+        userId: response.data.user._id, // Backend’den dönen userId'yi kaydedin
       });
-
-      alert("Personal information submitted successfully");
-      set({ isOpen: false }); // Close the modal after successful submission
+      return response.data.user._id;
     } catch (error) {
-      console.error("Error submitting personal information:", error);
-      alert(`Error submitting personal information: ${error.response ? error.response.data.message : error.message}`);
+      console.error("User creation failed:", error.message);
+      return null;
     }
   },
 }));
 
-export default useModalStore;
+export default useUserStore;

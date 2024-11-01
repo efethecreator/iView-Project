@@ -1,27 +1,66 @@
-import {create} from 'zustand'; // This line is correct
+import { create } from 'zustand';
 import axios from 'axios';
 
 const useVideoStore = create((set) => ({
-  uploadVideo: async (videoBlob) => {
-      const formData = new FormData();
-      const randomFileName = `${Date.now()}.mp4`;
-      formData.append("file", videoBlob, randomFileName);
+  videos: [],
+  videoUrl: null,
 
-      // Update to use VITE_ prefixed variables
-      formData.append("ProjectName", import.meta.env.VITE_VIDEO_API_PROJECT || "ProjectName");
-      formData.append("BucketName", import.meta.env.VITE_VIDEO_API_BUCKET || "BucketName");
-      formData.append("AccessKey", import.meta.env.VITE_VIDEO_API_KEY || "AccessKey");
+  // Tüm videoları getirme
+  fetchVideos: async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/videos');
+      set({ videos: response.data });
+    } catch (error) {
+      console.error("Failed to fetch videos:", error.message);
+    }
+  },
 
-      try {
-          const response = await axios.post("http://localhost:8000/api/videos", formData, {
-              headers: { "Content-Type": "multipart/form-data" },
-          });
-          console.log("Video uploaded successfully:", response.data);
-      } catch (error) {
-          console.error("Error uploading video:", error);
-      }
+
+
+  createUser: async (personalInfo) => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/users', personalInfo);
+      set({ userId: response.data.id }); // Dönen userId'yi kaydedin
+      return response.data.id;
+    } catch (error) {
+      console.error("User creation failed:", error.message);
+      return null;
+    }
+  },
+
+
+  // Video yükleme
+  uploadVideo: async (file, interviewId, userId) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('interviewId', interviewId);
+    formData.append('userId', userId);
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/videos', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      set((state) => ({ videos: [...state.videos, response.data] }));
+      console.log("Video uploaded successfully:", response.data);
+    } catch (error) {
+      console.error("Error during video upload:", error.message);
+    }
+  },
+
+  // Video silme
+  deleteVideo: async (id) => {
+    try {
+      await axios.delete(`/api/videos/${id}`);
+      set((state) => ({
+        videos: state.videos.filter((video) => video.id !== id),
+      }));
+      console.log("Video deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete video:", error.message);
+    }
   },
 }));
 
-
-export default useVideoStore; // This line is correct
+export default useVideoStore;

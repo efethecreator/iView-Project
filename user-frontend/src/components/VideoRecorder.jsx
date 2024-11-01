@@ -1,179 +1,74 @@
-import React, { useState, useRef, useEffect } from "react";
-import Modal from "./Modal";
-import axios from "axios";
-import { useParams } from "react-router-dom"; 
-import useVideoStore from '../stores/videoStore'; // Import your video store
+import React, { useState, useRef } from 'react';
 
-const VideoRecorder = () => {
+const VideoRecorder = ({ userId, uploadVideo }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [videoURL, setVideoURL] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const [personalInfo, setPersonalInfo] = useState({
-    name: "",
-    surname: "",
-    email: "",
-    phone: "",
-  });
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isInterviewComplete, setIsInterviewComplete] = useState(false);
-  const videoRef = useRef(null);
+  const [videoUrl, setVideoUrl] = useState(null);
   const mediaRecorderRef = useRef(null);
+  const videoRef = useRef(null);
   const chunks = useRef([]);
-  const { packageId } = useParams(); 
 
-  const uploadVideo = useVideoStore((state) => state.uploadVideo); // Access the uploadVideo function from the store
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    videoRef.current.srcObject = stream;
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await axios.get(`/api/packages/${packageId}`);
-        console.log(response.data);
-        if (response.data && response.data.questions) {
-          setQuestions(response.data.questions); 
-        }
-      } catch (error) {
-        console.error("Error fetching questions:", error);
-      }
+    mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
+    mediaRecorderRef.current.ondataavailable = (e) => chunks.current.push(e.data);
+    mediaRecorderRef.current.onstop = () => {
+      const blob = new Blob(chunks.current, { type: 'video/webm' });
+      setVideoUrl(URL.createObjectURL(blob));
+      chunks.current = [];
+      uploadVideo(blob, "interviewId-placeholder", userId); // Video yükle işlevine userId ile gönder
     };
-  
-    if (packageId) {
-      fetchQuestions();
-    }
-  }, [packageId]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setPersonalInfo((prevInfo) => ({
-      ...prevInfo,
-      [name]: value,
-    }));
+    mediaRecorderRef.current.start();
+    setIsRecording(true);
   };
 
-  const handleStartRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      videoRef.current.srcObject = stream;
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      setIsRecording(true);
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.current.push(event.data);
-        }
-      };
-
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunks.current, { type: "video/mp4" });
-        setVideoURL(blob); 
-        chunks.current = [];
-      };
-
-      mediaRecorderRef.current.start();
-    } catch (error) {
-      console.error("Error accessing media devices.", error);
-    }
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
-    } else {
-      setIsInterviewComplete(true);
-    }
-  };
-
-  const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append("name", personalInfo.name);
-    formData.append("surname", personalInfo.surname);
-    formData.append("email", personalInfo.email);
-    formData.append("phone", personalInfo.phone);
-
-    try {
-      await axios.post("http://localhost:8000/api/users/create", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      alert("Kişisel bilgiler başarıyla gönderildi!");
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error submitting personal information:", error);
-    }
-  };
-
-  const handleStopRecording = async () => {
+  const stopRecording = () => {
     mediaRecorderRef.current.stop();
-    videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+    videoRef.current.srcObject.getTracks().forEach(track => track.stop());
     setIsRecording(false);
-
-    // Prepare the video blob for upload
-    const videoBlob = new Blob(chunks.current, { type: "video/mp4" });
-    await uploadVideo(videoBlob); // Upload the video using the store
   };
 
   return (
-    <div className="flex bg-gray-100 p-6 font-montserrat">
-      <div className="w-3/4">
-        <h1 className="text-2xl font-bold mb-4">Video Recorder</h1>
-
-        <div className="w-full max-w-4xl">
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            className="w-full h-80 bg-black mb-4"
-          ></video>
-        </div>
-
-        <div className="flex space-x-4">
-          {!isRecording && (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Video Recorder</h2>
+      
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mb-4">
+        <video ref={videoRef} autoPlay muted className="w-full h-48 rounded-lg mb-4 border-2 border-gray-300" />
+        
+        <div className="flex justify-center gap-4">
+          {isRecording ? (
             <button
-              className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-              onClick={handleStartRecording}
+              onClick={stopRecording}
+              className="px-4 py-2 bg-red-500 text-white font-semibold rounded hover:bg-red-600"
             >
-              Mülakata Başla
+              Stop Recording
             </button>
-          )}
-          {isRecording && (
+          ) : (
             <button
-              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-              onClick={handleStopRecording}
+              onClick={startRecording}
+              className="px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600"
             >
-              Mülakatı Bitir
+              Start Recording
             </button>
           )}
         </div>
       </div>
-
-      <div className="w-1/4 bg-white p-4 rounded-md shadow-md ml-6">
-        <h2 className="text-lg font-semibold mb-4">Questions</h2>
-        {!isInterviewComplete && questions.length > 0 ? (
-          <div>
-            <p>{questions[currentQuestionIndex].question}</p>
-            <p>Zaman: {questions[currentQuestionIndex].time} saniye</p>
-            <button
-              className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
-              onClick={handleNextQuestion}
-            >
-              Next Question
-            </button>
-          </div>
-        ) : (
-          <p className="text-red-500 font-bold">
-            {isInterviewComplete ? "Interview complete" : "No more questions"}
-          </p>
-        )}
-      </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        personalInfo={personalInfo}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
-      />
+      
+      {videoUrl && (
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mt-4">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Recorded Video</h3>
+          <video src={videoUrl} controls className="w-full rounded-lg border-2 border-gray-300 mb-4" />
+          <a
+            href={videoUrl}
+            download="recorded-video.webm"
+            className="block text-center px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-600"
+          >
+            Download Video
+          </a>
+        </div>
+      )}
     </div>
   );
 };

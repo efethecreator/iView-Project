@@ -7,6 +7,7 @@ import {
 } from "../services/interviewService";
 import { QuestionPackageModel } from "../models/question-package.model";
 import mongoose from "mongoose";
+import InterviewVideosModel from "../models/interviewVideosModel";
 
 // Create Interview Controller
 export const createInterviewController = async (
@@ -33,6 +34,16 @@ export const createInterviewController = async (
     };
 
     const newInterview = await createInterview(interviewData);
+
+    const preInterviewVideos = {
+      interviewId: newInterview._id,
+      videos: [],
+    };
+
+    console.log("esas data: " + preInterviewVideos);
+
+    const interviewVideosData = new InterviewVideosModel(preInterviewVideos);
+    await interviewVideosData.save();
 
     res.status(201).json({
       message: "Interview created successfully",
