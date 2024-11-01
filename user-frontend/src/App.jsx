@@ -6,7 +6,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<VideoRecorderPage />} />
+        <Route path="/:id" element={<VideoRecorderPage />} />
       </Routes>
     </Router>
   );

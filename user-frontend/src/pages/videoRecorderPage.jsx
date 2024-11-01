@@ -1,10 +1,12 @@
 import React from "react";
 import UserInformation from "../components/userInformation";
 import VideoRecorder from "../components/VideoRecorder";
-import useUserStore from "../stores/userStore"; 
-import useVideoStore from "../stores/videoStore"; 
+import useUserStore from "../stores/userStore";
+import useVideoStore from "../stores/videoStore";
+import { useParams } from "react-router-dom";
 
 const VideoRecorderPage = () => {
+  const { id: interviewId } = useParams(); // Get the interview ID from URL params
   const userId = useUserStore((state) => state.userId);
   const uploadVideo = useVideoStore((state) => state.uploadVideo);
 
@@ -15,7 +17,11 @@ const VideoRecorderPage = () => {
 
       {/* Her zaman arka planda görünen video kaydedici */}
       <div className="absolute inset-0">
-        <VideoRecorder userId={userId} uploadVideo={uploadVideo} />
+        <VideoRecorder
+          interviewID={interviewId}
+          userId={userId}
+          uploadVideo={uploadVideo}
+        />
       </div>
     </div>
   );

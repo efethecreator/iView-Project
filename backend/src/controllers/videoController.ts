@@ -39,36 +39,39 @@ export const uploadVideo = async (
   res: Response
 ): Promise<void> => {
   try {
+    // Dosyanın yüklendiğini doğrula
     if (!req.file) {
-      console.error("No video file uploaded.");
       res.status(400).json({ message: "No video file uploaded." });
       return;
     }
 
     const { interviewId, userId } = req.body;
 
-    if (!interviewId || !userId) {
-      console.error("Missing interviewId or userId.");
-      res.status(400).json({ message: "Missing interviewId or userId." });
+    // interviewId ve userId'nin eksik olmadığını doğrula
+    if (!interviewId) {
+      res.status(400).json({ message: "Missing interviewId." });
+      return;
+    }
+    if (!userId) {
+      res.status(400).json({ message: "Missing userId." });
       return;
     }
 
-    console.log("Received file:", req.file); // Gelen dosyayı logla
-
+    // Video upload ve veritabanına ekleme işlemi
     const responseData = await VideoService.uploadVideoToAPI(
       req.file,
       userId,
       interviewId
     );
 
-    res.status(200).json(responseData);
-  } catch (error) {
-    console.error("Error during video upload:", error); // Hata loglama
-    const message =
-      error instanceof Error ? error.message : "Video yüklenemedi";
-    res.status(500).json({ message, error });
+    // Güncellenmiş dökümanı döndür
+    res.status(200).json(responseData.updatedInterview);
+  } catch (error: unknown) {
+    console.error("Error during video upload:", (error as Error).message);
+    res.status(500).json({ message: "Video yüklenemedi", error: (error as Error).message });
   }
 };
+
 
 // Video sil
 export const deleteVideo = async (

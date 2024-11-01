@@ -1,13 +1,11 @@
 import dotenv from "dotenv";
 import axios from "axios";
-import FormData from "form-data";
 import {
-  GetObjectCommand,
   S3Client,
   PutObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
 import InterviewVideos from "../models/interviewVideosModel";
 
 dotenv.config();
@@ -34,33 +32,31 @@ if (
 const s3Client = new S3Client({
   region: VIDEO_API_REGION,
   credentials: {
-    accessKeyId: VIDEO_API_ACCESS_KEY,
-    secretAccessKey: VIDEO_API_SECRET_KEY,
+    accessKeyId: VIDEO_API_ACCESS_KEY!,
+    secretAccessKey: VIDEO_API_SECRET_KEY!,
   },
 });
 
-//Tüm videoları al
+// Tüm videoları al
 export const fetchVideos = async (): Promise<Video[]> => {
   try {
     const response = await axios.get(``);
-    console.log("Fetched videos:", response.data); // Gelen videoları logla
+    console.log("Fetched videos:", response.data);
     return response.data;
-  } catch (error: any) {
-    console.error("Failed to fetch videos:", error.message); // Hata loglama
-    throw new Error(`Failed to fetch videos: ${error.message}`);
+  } catch (error: unknown) {
+    console.error("Failed to fetch videos:", (error as Error).message);
+    throw new Error(`Failed to fetch videos: ${(error as Error).message}`);
   }
 };
 
-//Belirli bir ID ile video al
+// Belirli bir ID ile video al
 export const fetchVideoById = async (videoId: string, interviewId: string) => {
   try {
     const interviewVideo = await InterviewVideos.findOne({
       interviewId: interviewId,
     });
 
-    const key = interviewVideo?.videos.filter(
-      (video) => video.id === videoId
-    )[0]?.videoKey;
+    const key = interviewVideo?.videos.find((video) => video.id === videoId)?.videoKey;
 
     if (!key) {
       throw new Error("Video bulunamadı");
@@ -75,14 +71,12 @@ export const fetchVideoById = async (videoId: string, interviewId: string) => {
       expiresIn: 3600, // 1 saat
     });
 
-    console.log("Signed URL:", signedUrl); // Signed URL'yi logla
+    console.log("Signed URL:", signedUrl);
 
-    return {
-      signedUrl,
-    };
-  } catch (error: any) {
-    console.error("Failed to fetch video by ID:", error.message); // Hata loglama
-    throw new Error(`Failed to fetch video by ID: ${error.message}`);
+    return { signedUrl };
+  } catch (error: unknown) {
+    console.error("Failed to fetch video by ID:", (error as Error).message);
+    throw new Error(`Failed to fetch video by ID: ${(error as Error).message}`);
   }
 };
 
@@ -91,7 +85,7 @@ export const uploadVideoToAPI = async (
   file: Express.Multer.File,
   userId: string,
   interviewId: string
-) => {
+): Promise<{ randomFileName: string; uploadResult: any; updatedInterview: any }> => {
   try {
     const randomFileName = `${Date.now()}.mp4`;
 
@@ -103,10 +97,10 @@ export const uploadVideoToAPI = async (
     });
 
     const uploadResult = await s3Client.send(command);
-
     console.log("Video uploaded successfully:", uploadResult);
 
-    await InterviewVideos.findOneAndUpdate(
+    // Veritabanında interviewId'ye göre belgeyi güncelle veya oluştur
+    const updatedInterview = await InterviewVideos.findOneAndUpdate(
       { interviewId: interviewId },
       {
         $push: {
@@ -116,30 +110,28 @@ export const uploadVideoToAPI = async (
           },
         },
       },
-      { new: true } // Güncellenmiş dökümanı döndür
+      { new: true, upsert: true } // Güncellenmiş belgeyi döndür ve belge yoksa oluştur
     );
 
     return {
       randomFileName,
       uploadResult,
+      updatedInterview,
     };
-  } catch (error: any) {
-    console.error(
-      "Error during video upload:",
-      error.response ? error.response.data : error.message
-    );
-    throw new Error(`Failed to upload video: ${error.message}`);
+  } catch (error: unknown) {
+    console.error("Error during video upload:", (error as Error).message);
+    throw new Error(`Failed to upload video: ${(error as Error).message}`);
   }
 };
 
-//Video sil
+// Video sil
 export const deleteVideo = async (videoId: string): Promise<void> => {
   try {
-    console.log("Deleting video with ID:", videoId); // Silinecek video ID'sini logla
+    console.log("Deleting video with ID:", videoId);
     await axios.delete(``);
-    console.log("Video deleted successfully."); // Silme işlemi başarılıysa logla
-  } catch (error: any) {
-    console.error("Failed to delete video:", error.message); // Hata loglama
-    throw new Error(`Failed to delete video: ${error.message}`);
+    console.log("Video deleted successfully.");
+  } catch (error: unknown) {
+    console.error("Failed to delete video:", (error as Error).message);
+    throw new Error(`Failed to delete video: ${(error as Error).message}`);
   }
 };
