@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 
 const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [videoUrl, setVideoUrl] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentQuestionTime, setCurrentQuestionTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -27,21 +26,6 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
     initCamera();
   }, []);
 
-  useEffect(() => {
-    if (isRecording) {
-      startRecording();
-      startQuestionTimer();
-    } else if (mediaRecorderRef.current) {
-      stopRecording();
-    }
-  }, [isRecording]);
-
-  useEffect(() => {
-    if (isRecording) {
-      startQuestionTimer();
-    }
-  }, [currentQuestion]);
-
   const startRecording = () => {
     const stream = videoRef.current.srcObject;
     mediaRecorderRef.current = new MediaRecorder(stream, {
@@ -52,17 +36,21 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
     };
     mediaRecorderRef.current.onstop = () => {
       const blob = new Blob(chunks.current, { type: "video/webm" });
-      setVideoUrl(URL.createObjectURL(blob));
       uploadVideo(blob, interviewID, userId);
       chunks.current = [];
     };
     mediaRecorderRef.current.start();
+    setIsRecording(true);
+    startQuestionTimer(); // Soru zamanlayıcısını kaydı başlatırken başlat
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      setIsRecording(false);
+      clearInterval(intervalRef.current);
+      setTimerRunning(false);
     }
   };
 
@@ -86,6 +74,7 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
   const handleNextQuestion = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
+      startQuestionTimer();
     } else {
       alert("Tüm sorular tamamlandı.");
       setIsRecording(false);
@@ -105,28 +94,28 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
       {/* Video Kayıt Alanı */}
       <div className="w-2/3 bg-white rounded-xl shadow-lg p-6 mr-6">
         <h2 className="text-3xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-200 pb-2">
-          Video Recorder
+          Interview
         </h2>
         <video
           ref={videoRef}
           autoPlay
           muted
-          className="w-full h-64 rounded-lg mb-6 border-2 border-gray-200 shadow-sm"
+          className="w-full h-[500px] rounded-lg mb-6 border-2 border-gray-200 shadow-sm object-cover"
         />
         <div className="flex justify-center gap-4">
           {isRecording ? (
             <button
-              onClick={() => setIsRecording(false)}
-              className="px-5 py-2.5 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-colors"
+              onClick={stopRecording}
+              className="text-white bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 shadow-lg shadow-red-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 transform transition-transform duration-200 hover:scale-105"
             >
-              Stop Recording
+              End Interview
             </button>
           ) : (
             <button
-              onClick={() => setIsRecording(true)}
-              className="px-5 py-2.5 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-colors"
+              onClick={startRecording}
+              className="text-white bg-gradient-to-r from-green-500 via-green-600 to-green-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 shadow-lg shadow-green-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 transform transition-transform duration-200 hover:scale-105"
             >
-              Start Recording
+              Start Interview
             </button>
           )}
         </div>
@@ -153,20 +142,12 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
         <div className="flex flex-col gap-4 mt-auto">
           {isRecording && currentQuestion < questions.length - 1 && (
             <button
-              onClick={handleNextQuestion}
-              className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Next Question
-            </button>
-          )}
-          {videoUrl && (
-            <a
-              href={videoUrl}
-              download="recorded-video.webm"
-              className="block text-center px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition-colors mt-4"
-            >
-              Download Video
-            </a>
+            onClick={handleNextQuestion}
+            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 shadow-lg shadow-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 mx-auto w-48 transform transition-transform duration-200 hover:scale-105"
+          >
+            Next Question
+          </button>
+          
           )}
         </div>
       </div>

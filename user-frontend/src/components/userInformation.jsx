@@ -67,7 +67,7 @@ const UserInformation = ({ isOpen }) => {
             className="mr-2"
           />
           <label htmlFor="kvkk" className="text-gray-700">
-            KVKK’yı kabul ediyorum
+            KVKK’yi okudum ve kabul ediyorum.
           </label>
         </div>
 
