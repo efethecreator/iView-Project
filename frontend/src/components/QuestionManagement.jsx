@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import useQuestionStore from '../store/questionStore';
-import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa'; // React icons
-import { motion } from 'framer-motion'; // For advanced animations
+import React, { useEffect, useState } from "react";
+import useQuestionStore from "../store/questionStore";
+import { FaTrash, FaEdit, FaPlus } from "react-icons/fa"; // React icons
+import { motion } from "framer-motion"; // For advanced animations
 
 const QuestionManagement = () => {
   const {
@@ -10,7 +10,6 @@ const QuestionManagement = () => {
     deleteQuestionPackage,
     fetchQuestionPackages,
   } = useQuestionStore();
-
 
   const [newPackageTitle, setNewPackageTitle] = useState("");
 
@@ -25,7 +24,7 @@ const QuestionManagement = () => {
   }, [fetchQuestionPackages]);
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen rounded-3xl shadow-xl">
       <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
         Manage Question Packages
       </h2>
@@ -51,12 +50,18 @@ const QuestionManagement = () => {
 
       {/* Question Packages Table */}
       <div className="bg-white shadow-xl rounded-xl overflow-hidden">
-        <table className="min-w-full table-auto text-left">
+        <table className="min-w-full table-auto text-center">
+          {" "}
+          {/* Tüm tabloyu ortalı hale getirmek için text-center ekledik */}
           <thead>
             <tr className="bg-gray-100">
               <th className="px-6 py-3 text-gray-600 font-medium">#</th>
-              <th className="px-6 py-3 text-gray-600 font-medium">Package Name</th>
-              <th className="px-6 py-3 text-gray-600 font-medium">Question Count</th>
+              <th className="px-6 py-3 text-gray-600 font-medium">
+                Package Name
+              </th>
+              <th className="px-6 py-3 text-gray-600 font-medium">
+                Question Count
+              </th>
               <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
             </tr>
           </thead>
@@ -68,8 +73,10 @@ const QuestionManagement = () => {
               >
                 <td className="px-6 py-4 text-gray-700">{index + 1}</td>
                 <td className="px-6 py-4 text-gray-700">{pkg.title}</td>
-                <td className="px-6 py-4 text-gray-700">{pkg.questions.length}</td>
-                <td className="px-6 py-4 flex space-x-4">
+                <td className="px-6 py-4 text-gray-700">
+                  {pkg.questions.length}
+                </td>
+                <td className="px-6 py-4 flex justify-center space-x-4">
                   <motion.button
                     onClick={() => deleteQuestionPackage(pkg._id)}
                     className="text-red-500 hover:text-red-700 transition-colors"

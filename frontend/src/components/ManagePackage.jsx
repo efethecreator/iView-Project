@@ -17,7 +17,9 @@ const ManagePackage = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
-    const selectedPackage = questionPackages.find((pkg) => pkg._id === packageId);
+    const selectedPackage = questionPackages.find(
+      (pkg) => pkg._id === packageId
+    );
     if (selectedPackage) {
       setPackageData(selectedPackage);
       setNewTitle(selectedPackage.title);
@@ -28,7 +30,9 @@ const ManagePackage = () => {
     if (packageData) {
       const updatedData = {
         questions: [
-          ...packageData.questions.filter((question) => !deletedQuestions.includes(question._id)),
+          ...packageData.questions.filter(
+            (question) => !deletedQuestions.includes(question._id)
+          ),
           ...tempQuestions,
         ],
         title: newTitle,
@@ -52,7 +56,9 @@ const ManagePackage = () => {
   };
 
   const handleDeleteQuestion = (questionId) => {
-    setTempQuestions((prevQuestions) => prevQuestions.filter((q) => q.question !== questionId));
+    setTempQuestions((prevQuestions) =>
+      prevQuestions.filter((q) => q.question !== questionId)
+    );
     setDeletedQuestions((prevDeleted) => [...prevDeleted, questionId]);
   };
 
@@ -67,7 +73,10 @@ const ManagePackage = () => {
           {/* Soru Başlığı Düzenleme Kısmı */}
           <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-lg mb-8">
             <div className="flex flex-col w-full mr-4">
-              <label htmlFor="packageTitle" className="text-gray-700 mb-2 font-medium">
+              <label
+                htmlFor="packageTitle"
+                className="text-gray-700 mb-2 font-medium"
+              >
                 Edit Package Title
               </label>
               <input
@@ -92,24 +101,41 @@ const ManagePackage = () => {
 
           {/* Soru Listesi Tablosu */}
           <div className="bg-white shadow-xl rounded-xl overflow-hidden">
-            <table className="min-w-full table-auto text-left">
+            <table className="min-w-full table-auto text-center">
+              {" "}
+              {/* Tüm tabloyu ortalamak için text-center ekledik */}
               <thead>
                 <tr className="bg-gray-100">
                   <th className="px-6 py-3 text-gray-600 font-medium">#</th>
-                  <th className="px-6 py-3 text-gray-600 font-medium">Question</th>
+                  <th className="px-6 py-3 text-gray-600 font-medium">
+                    Question
+                  </th>
                   <th className="px-6 py-3 text-gray-600 font-medium">Time</th>
-                  <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
+                  <th className="px-6 py-3 text-gray-600 font-medium">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white">
                 {packageData.questions
-                  .filter((question) => !deletedQuestions.includes(question._id))
+                  .filter(
+                    (question) => !deletedQuestions.includes(question._id)
+                  )
                   .map((question, index) => (
-                    <tr key={question._id} className="border-t hover:bg-gray-50 transition-all">
+                    <tr
+                      key={question._id}
+                      className="border-t hover:bg-gray-50 transition-all"
+                    >
                       <td className="px-6 py-4 text-gray-700">{index + 1}</td>
-                      <td className="px-6 py-4 text-gray-700">{question.question}</td>
-                      <td className="px-6 py-4 text-gray-700">{question.time}</td>
-                      <td className="px-6 py-4 flex space-x-4">
+                      <td className="px-6 py-4 text-gray-700">
+                        {question.question}
+                      </td>
+                      <td className="px-6 py-4 text-gray-700">
+                        {question.time}
+                      </td>
+                      <td className="px-6 py-4 flex justify-center space-x-4">
+                        {" "}
+                        {/* Butonları ortalamak için justify-center ekledik */}
                         <motion.button
                           onClick={() => handleDeleteQuestion(question._id)}
                           className="text-red-500 hover:text-red-700"
@@ -123,13 +149,20 @@ const ManagePackage = () => {
                   ))}
 
                 {tempQuestions.map((question, index) => (
-                  <tr key={`temp-${index}`} className="border-t hover:bg-gray-50 transition-all">
+                  <tr
+                    key={`temp-${index}`}
+                    className="border-t hover:bg-gray-50 transition-all"
+                  >
                     <td className="px-6 py-4 text-gray-700">
                       {packageData.questions.length + index + 1}
                     </td>
-                    <td className="px-6 py-4 text-gray-700">{question.question}</td>
+                    <td className="px-6 py-4 text-gray-700">
+                      {question.question}
+                    </td>
                     <td className="px-6 py-4 text-gray-700">{question.time}</td>
-                    <td className="px-6 py-4 flex space-x-4">
+                    <td className="px-6 py-4 flex justify-center space-x-4">
+                      {" "}
+                      {/* Butonları ortalamak için justify-center ekledik */}
                       <motion.button
                         onClick={() => handleDeleteQuestion(question.question)}
                         className="text-red-500 hover:text-red-700"
@@ -180,8 +213,10 @@ const ManagePackage = () => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -100, opacity: 0 }}
                 >
-                  <h3 className="text-xl font-semibold mb-4">Add a New Question</h3>
-                  
+                  <h3 className="text-xl font-semibold mb-4">
+                    Add a New Question
+                  </h3>
+
                   <textarea
                     placeholder="Enter question..."
                     value={newQuestion}

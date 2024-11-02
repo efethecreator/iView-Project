@@ -7,9 +7,9 @@ const AdminLayout = () => {
   const [activeMenu, setActiveMenu] = useState('questions');
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
+    <div className="flex bg-blue min-h-screen">
       {/* Sol Menü */}
-      <div className="w-64 bg-white p-6 shadow-xl flex flex-col items-start">
+      <div className="w-85 bg-white p-8 shadow-xl flex flex-col items-start">
         <h1 className="text-gray-800 text-3xl font-bold relative mb-6">iView Admin Panel</h1>
 
         {/* İnce ve animasyonlu çizgi */}
