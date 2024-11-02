@@ -67,7 +67,7 @@ const AdminLogin = () => {
           onSubmit={handleLogin}
           className="space-y-6 flex flex-col justify-center w-full md:w-1/2"
         >
-          <h2 className="text-3xl font-semibold text-gray-800">
+          <h2 className="text-3xl text-gray-800 block text-s font-semibold mb-1">
             iView Admin Panel
           </h2>
           <p className="text-gray-500 ">Login with your admin credentials.</p>
