@@ -438,7 +438,7 @@ const JobPositionForm = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex justify-between mt-4 items-center text-sm text-gray-500">
+              <div className="flex justify-between mt-4 items-center text-sm text-red-500">
                 <span>
                   {interview.isPublished ? "Published" : "Unpublished"}
                 </span>

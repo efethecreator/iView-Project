@@ -1,20 +1,21 @@
-import { Outlet, useLocation, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Outlet, useLocation, Link } from "react-router-dom";
+import { useState } from "react";
+import logo from "../assets/iviewlogo.png";
 
 const AdminLayout = () => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/admin-dashboard';
-  const [activeMenu, setActiveMenu] = useState('questions');
+  const isHomePage = location.pathname === "/admin-dashboard";
+  const [activeMenu, setActiveMenu] = useState("questions");
 
   return (
     <div className="flex bg-blue min-h-screen">
       {/* Sol Menü */}
-      <div className="w-85 bg-white p-8 shadow-xl flex flex-col items-start">
-        <h1 className="text-gray-800 text-3xl font-bold relative mb-6">iView Admin Panel</h1>
+      <div className="w-65 p-8 shadow-xl flex flex-col items-start bg-gradient-to-t from-[#207c6c] to-white">
+        <img src={logo} alt="iView Logo" className="w-40 h-auto mb-6 ml-16 mt-55" />
 
         {/* İnce ve animasyonlu çizgi */}
         <div className="w-full h-1 bg-transparent relative mb-8">
-          <div className="absolute w-full h-1 bg-gray-300 transition-all duration-500"></div>
+          <div className="absolute w-full h-1 items-start bg-gradient-to-t from-[#207c6c] to-white ml-1 "></div>
           <div className="absolute w-0 h-1 bg-gray-500 hover:w-full transition-all duration-700"></div>
         </div>
 
@@ -23,20 +24,18 @@ const AdminLayout = () => {
           <li>
             <Link
               to="/admin-dashboard/questions"
-              className="block text-lg font-medium text-gray-700 py-2 px-4 rounded-lg hover:bg-blue-100 hover:text-blue-600 hover:underline hover:shadow-lg transition-all duration-300 relative"
+              className="ml-2 block text-lg font-medium text-black py-2 px-4 rounded-lg hover:bg-[#88d3cf] hover:text-gray-700 hover:underline hover:shadow-lg transition-all duration-300 relative"
             >
               Manage Question Package
-              {/* Hover sırasında underline */}
-              <span className="absolute left-0 bottom-0 w-0 h-1 bg-blue-500 transition-all duration-500 hover:w-full"></span>
+              <span className="absolute left-0 bottom-0 w-0 h-1 bg-[#88d3cf] transition-all duration-500 hover:w-full "></span>
             </Link>
           </li>
           <li>
             <Link
               to="/admin-dashboard/interviews"
-              className="block text-lg font-medium text-gray-700 py-2 px-4 rounded-lg hover:bg-blue-100 hover:text-blue-600 hover:underline hover:shadow-lg transition-all duration-300 relative"
+              className="ml-2 block text-lg font-medium text-black py-2 px-4 rounded-lg hover:bg-[#88d3cf] hover:text-gray-700 hover:underline hover:shadow-lg transition-all duration-300 relative"
             >
               Interview List
-              {/* Hover sırasında underline */}
               <span className="absolute left-0 bottom-0 w-0 h-1 bg-blue-500 transition-all duration-500 hover:w-full"></span>
             </Link>
           </li>
@@ -44,8 +43,10 @@ const AdminLayout = () => {
       </div>
 
       {/* İçerik Alanı */}
-      <div className="flex-1 p-10 bg-white shadow-lg">
-        {isHomePage && <h1 className="text-4xl text-gray-800 font-semibold">Hoş Geldin!</h1>}
+      <div className="flex-1 px-3 py-6 bg-white items-start bg-gradient-to-t from-[#207c6c] to-white ">
+        {isHomePage && (
+          <h1 className="text-4xl text-gray-800 font-semibold">Hoş Geldin!</h1>
+        )}
         <Outlet />
       </div>
     </div>

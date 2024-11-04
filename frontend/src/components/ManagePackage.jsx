@@ -63,7 +63,7 @@ const ManagePackage = () => {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+    <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 w-full h-full min-h-screen rounded-3xl shadow-2xl mb-100">
       {packageData && (
         <>
           <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">

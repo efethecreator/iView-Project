@@ -24,7 +24,7 @@ const QuestionManagement = () => {
   }, [fetchQuestionPackages]);
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen rounded-3xl shadow-xl">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[70vh] rounded-3xl shadow-2xl">
       <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
         Manage Question Packages
       </h2>

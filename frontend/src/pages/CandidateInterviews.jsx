@@ -42,7 +42,7 @@
     }, []);
 
     return (
-      <div className="bg-white min-h-screen p-4"> {/* Arka plan beyaz yapıldı */}
+      <div className=""> {/* Arka plan beyaz yapıldı */}
         
         <JobPositionForm 
           newJobTitle={newJobTitle}
