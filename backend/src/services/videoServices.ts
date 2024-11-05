@@ -40,7 +40,7 @@ const s3Client = new S3Client({
 // Tüm videoları al
 export const fetchVideos = async (): Promise<Video[]> => {
   try {
-    const response = await axios.get(``);
+    const response = await axios.get(`http://localhost:8000/api/videos/`);
     console.log("Fetched videos:", response.data);
     return response.data;
   } catch (error: unknown) {
@@ -56,7 +56,7 @@ export const fetchVideoById = async (videoId: string, interviewId: string) => {
       interviewId: interviewId,
     });
 
-    const key = interviewVideo?.videos.find((video) => video.id === videoId)?.videoKey;
+    const key = interviewVideo?.videos.find((video) => video._id === videoId)?.videoKey;
 
     if (!key) {
       throw new Error("Video bulunamadı");

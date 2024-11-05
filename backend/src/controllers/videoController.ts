@@ -1,15 +1,29 @@
 import { Request, Response } from "express";
 import * as VideoService from "../services/videoServices";
+import InterviewVideos from "../models/interviewVideosModel";
 
 // Tüm videoları al
 export const getVideos = async (req: Request, res: Response): Promise<void> => {
   try {
-    const videos = await VideoService.fetchVideos();
-    res.status(200).json(videos);
+    const { interviewId } = req.query; // interviewId’yi sorgu parametresinden alın
+
+    if (!interviewId) {
+      res.status(400).json({ message: "interviewId eksik" });
+      return;
+    }
+
+    // Veritabanından interviewId’ye göre video verisini çekin
+    const interviewVideoData = await InterviewVideos.findOne({ interviewId });
+
+    if (!interviewVideoData) {
+      res.status(404).json({ message: "Video bulunamadı" });
+      return;
+    }
+
+    res.status(200).json(interviewVideoData.videos); // Sadece videos dizisini döndürün
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Videolar bulunamadı";
-    res.status(500).json({ message, error });
+    console.error("Failed to fetch videos:", error);
+    res.status(500).json({ message: "Videolar bulunamadı", error });
   }
 };
 

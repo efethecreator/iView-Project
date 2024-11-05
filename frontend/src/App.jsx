@@ -6,6 +6,7 @@ import QuestionManagement from './components/QuestionManagement';
 import ManagePackage from './components/ManagePackage';
 import CandidateInterviews from './pages/CandidateInterviews';
 import VideoCollectionPage from './pages/VideoCollectionPage';
+import VideoDetailPage from './pages/VideoDetailPage'; // Yeni import
 import useQuestionStore from './store/questionStore';
 
 const App = () => {
@@ -50,6 +51,9 @@ const App = () => {
           {/* Video koleksiyon sayfası */}
           <Route path="video-collection/:interviewID" element={<VideoCollectionPage />} />
         </Route>
+
+        {/* Video detay sayfası */}
+        <Route path="/video/:id" element={<VideoDetailPage />} />
       </Routes>
     </Router>
   );
