@@ -1,49 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import useVideoStore from "../store/useVideoCollectionStore";
 
 const VideoCollection = () => {
-  const [videos, setVideos] = useState([]);
-  const { interviewID } = useParams(); // URL'den interviewID'yi al
-  const navigate = useNavigate();
+  const { videos, fetchVideos, deleteVideo } = useVideoStore();
+  const { interviewId } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null); // Seçilen video
 
   useEffect(() => {
-    if (interviewID) fetchVideos(interviewID);
-  }, [interviewID]);
+    if (interviewId) fetchVideos(interviewId);
+  }, [interviewId, fetchVideos]);
 
-  const fetchVideos = async (interviewID) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/videos?interviewId=${interviewID}`);
-      console.log("API response:", response.data); // Yanıtı tekrar kontrol edin
-  
-      // Artık doğrudan response.data üzerinde işlem yapıyoruz
-      const videoData = await Promise.all(
-        response.data.map(async (video) => {
-          // Her bir video için kullanıcı bilgilerini çek
-          const userResponse = await axios.get(`http://localhost:8000/api/users/${video.userId}`);
-          return { ...video, user: userResponse.data };
-        })
-      );
-      
-      setVideos(videoData);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    }
-  };
-  
-  
-
-  const handleVideoClick = (videoId, userInfo) => {
-    navigate(`/video/${videoId}`, { state: { userInfo } });
+  const handleVideoClick = (video) => {
+    setSelectedVideo(video); // Seçilen videoyu ayarla
+    setIsModalOpen(true); // Modalı aç
   };
 
-  const deleteVideo = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/videos/${id}`);
-      setVideos(videos.filter((video) => video._id !== id));
-    } catch (error) {
-      console.error('Error deleting video:', error);
-    }
+  const closeModal = () => {
+    setIsModalOpen(false); // Modalı kapat
+    setSelectedVideo(null); // Seçimi temizle
   };
 
   return (
@@ -54,7 +30,11 @@ const VideoCollection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video) => (
             <div key={video._id} className="bg-white shadow-lg rounded-lg p-4">
-              <video src={video.s3Url} controls className="w-full h-48 rounded-md mb-4"></video>
+              <video
+                src={video.s3Url}
+                controls
+                className="w-full h-48 rounded-md mb-4"
+              ></video>
               <h3 className="text-lg font-semibold text-gray-800">
                 {video.user?.name} {video.user?.surname}
               </h3>
@@ -66,7 +46,7 @@ const VideoCollection = () => {
                   Delete
                 </button>
                 <button
-                  onClick={() => handleVideoClick(video._id, video.user)}
+                  onClick={() => handleVideoClick(video)}
                   className="text-blue-500 hover:text-blue-700 font-semibold"
                 >
                   View Details
@@ -74,6 +54,28 @@ const VideoCollection = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal Component */}
+      {isModalOpen && selectedVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedVideo.user?.name} {selectedVideo.user?.surname} - Video
+            </h2>
+            <video
+              src={selectedVideo.s3Url}
+              controls
+              className="w-full h-64 rounded-md mb-4"
+            ></video>
+            <button
+              onClick={closeModal}
+              className="text-white bg-red-500 px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

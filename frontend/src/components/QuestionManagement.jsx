@@ -24,7 +24,7 @@ const QuestionManagement = () => {
   }, [fetchQuestionPackages]);
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[70vh] rounded-3xl shadow-2xl">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl">
       <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
         Manage Question Packages
       </h2>
@@ -49,8 +49,8 @@ const QuestionManagement = () => {
       </div>
 
       {/* Question Packages Table */}
-      <div className="bg-white shadow-xl rounded-xl overflow-hidden">
-        <table className="min-w-full table-auto text-center">
+      <div className="bg-white shadow-xl rounded-xl overflow-y-auto max-h-[464px] min-h-[450px]">
+        <table className="min-w-full table-auto text-center ">
           {" "}
           {/* Tüm tabloyu ortalı hale getirmek için text-center ekledik */}
           <thead>

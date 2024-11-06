@@ -63,7 +63,7 @@ const ManagePackage = () => {
   };
 
   return (
-    <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 w-full h-full min-h-screen rounded-3xl shadow-2xl mb-100">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl">
       {packageData && (
         <>
           <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
@@ -100,8 +100,8 @@ const ManagePackage = () => {
           </div>
 
           {/* Soru Listesi Tablosu */}
-          <div className="bg-white shadow-xl rounded-xl overflow-hidden">
-            <table className="min-w-full table-auto text-center">
+          <div className="bg-white shadow-xl rounded-xl overflow-y-auto max-h-[410px] min-h-[420px]">
+            <table className="min-w-full table-auto text-center overflox-x-auto">
               {" "}
               {/* Tüm tabloyu ortalamak için text-center ekledik */}
               <thead>
@@ -225,11 +225,11 @@ const ManagePackage = () => {
                   />
                   <input
                     type="number" // Sadece sayı girişine izin verir.
-                    placeholder="Enter time (in seconds)..."
+                    placeholder="Enter time..."
                     value={newTime}
                     onChange={(e) => setNewTime(e.target.value)}
                     className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
-                    min="0" // Negatif sayılar önlenir.
+                    min="1" // Negatif sayılar önlenir.
                     step="1" // Sadece tam sayı girişi yapılabilir.
                   />
                   <div className="flex justify-end space-x-2">

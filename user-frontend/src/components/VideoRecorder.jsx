@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
+const VideoRecorder = ({ interviewId, userId, uploadVideo, questions }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentQuestionTime, setCurrentQuestionTime] = useState(0);
@@ -36,7 +36,7 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
     };
     mediaRecorderRef.current.onstop = () => {
       const blob = new Blob(chunks.current, { type: "video/webm" });
-      uploadVideo(blob, interviewID, userId);
+      uploadVideo(blob, interviewId, userId);
       chunks.current = [];
     };
     mediaRecorderRef.current.start();
@@ -134,20 +134,25 @@ const VideoRecorder = ({ interviewID, userId, uploadVideo, questions }) => {
               </span>
               {questions[currentQuestion]?.question}
             </p>
-            <p className="mt-2 text-gray-500">Remaining Time: {formatTime(currentQuestionTime)}</p>
+            <p className="mt-2 text-gray-500">
+              Remaining Time: {formatTime(currentQuestionTime)}
+            </p>
           </div>
         ) : (
-          <p className="text-gray-500">{isRecording ? "No questions available." : "Start recording to begin questions."}</p>
+          <p className="text-gray-500">
+            {isRecording
+              ? "No questions available."
+              : "Start recording to begin questions."}
+          </p>
         )}
         <div className="flex flex-col gap-4 mt-auto">
           {isRecording && currentQuestion < questions.length - 1 && (
             <button
-            onClick={handleNextQuestion}
-            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 shadow-lg shadow-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 mx-auto w-48 transform transition-transform duration-200 hover:scale-105"
-          >
-            Next Question
-          </button>
-          
+              onClick={handleNextQuestion}
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 shadow-lg shadow-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 mx-auto w-48 transform transition-transform duration-200 hover:scale-105"
+            >
+              Next Question
+            </button>
           )}
         </div>
       </div>

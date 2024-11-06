@@ -1,45 +1,15 @@
 import { Request, Response } from "express";
 import * as VideoService from "../services/videoServices";
-import InterviewVideos from "../models/interviewVideosModel";
-
-// Tüm videoları al
-export const getVideos = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { interviewId } = req.query; // interviewId’yi sorgu parametresinden alın
-
-    if (!interviewId) {
-      res.status(400).json({ message: "interviewId eksik" });
-      return;
-    }
-
-    // Veritabanından interviewId’ye göre video verisini çekin
-    const interviewVideoData = await InterviewVideos.findOne({ interviewId });
-
-    if (!interviewVideoData) {
-      res.status(404).json({ message: "Video bulunamadı" });
-      return;
-    }
-
-    res.status(200).json(interviewVideoData.videos); // Sadece videos dizisini döndürün
-  } catch (error) {
-    console.error("Failed to fetch videos:", error);
-    res.status(500).json({ message: "Videolar bulunamadı", error });
-  }
-};
 
 // Belirli bir ID ile video al
-export const getVideoById = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getVideoById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { interviewId } = req.body;
-    const video = await VideoService.fetchVideoById(id, interviewId);
-    if (!video) {
-      res.status(404).json({ message: "Video bulunamadı" });
+    const { interviewId } = req.params; // interviewId parametresi eksik olabilir, kontrol edin
+    if (!interviewId) {
+      res.status(400).json({ message: "Eksik interviewId." });
       return;
     }
+    const video = await VideoService.fetchVideosByInterviewId(interviewId);
     res.status(200).json(video);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Video bulunamadı";
@@ -82,10 +52,11 @@ export const uploadVideo = async (
     res.status(200).json(responseData.updatedInterview);
   } catch (error: unknown) {
     console.error("Error during video upload:", (error as Error).message);
-    res.status(500).json({ message: "Video yüklenemedi", error: (error as Error).message });
+    res
+      .status(500)
+      .json({ message: "Video yüklenemedi", error: (error as Error).message });
   }
 };
-
 
 // Video sil
 export const deleteVideo = async (
@@ -93,8 +64,15 @@ export const deleteVideo = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    await VideoService.deleteVideo(id);
+    const { id: videoId } = req.params;
+    const { interviewId } = req.body;
+
+    if (!interviewId || !videoId) {
+      res.status(400).json({ message: "Eksik video veya interview ID" });
+      return;
+    }
+
+    await VideoService.deleteVideo(videoId, interviewId);
     res.status(204).send();
   } catch (error) {
     const message = error instanceof Error ? error.message : "Video silinemedi";

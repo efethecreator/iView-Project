@@ -1,34 +1,56 @@
-// useVideoCollectionStore.js
 import { create } from "zustand";
 import axios from "axios";
 
-const useVideoCollectionStore = create((set) => ({
+const useVideoStore = create((set) => ({
   videos: [],
-  videoUrl: null, // Tek bir video URL'sini saklamak için
-
-  // Tüm videoları bir interviewID ile çekme
-  fetchVideos: async (interviewID) => {
+  fetchVideos: async (interviewId) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/videos/${interviewID}`
+        `http://localhost:8000/api/videos/${interviewId}`
       );
-      set({ videos: response.data.videos });
+  
+      const videoData = await Promise.all(
+        response.data.map(async (video) => {
+          // `s3Url` artık backend'den döndüğü için tekrar oluşturmanıza gerek yok.
+          const userResponse = await axios.get(
+            `http://localhost:8000/api/users/${video.userId}`
+          );
+          return { ...video, user: userResponse.data }; // sadece user bilgisi ekleniyor
+        })
+      );
+
+      set({ videos: videoData });
     } catch (error) {
       console.error("Error fetching videos:", error);
     }
   },
+  uploadVideo: async (file, userId, interviewId) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("userId", userId);
+    formData.append("interviewId", interviewId);
 
-  // Belirli bir video ID ile tek bir video çekme
-  fetchVideoById: async (videoId, interviewID) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/videos/${videoId}`, {
-        data: { interviewID }, // interviewId'yi body ile gönder
+      const response = await axios.post("http://localhost:8000/api/videos", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      set({ videoUrl: response.data.signedUrl });
+      set((state) => ({
+        videos: [...state.videos, response.data],
+      }));
     } catch (error) {
-      console.error("Failed to fetch video by ID:", error.message);
+      console.error("Error uploading video:", error);
+    }
+  },
+  deleteVideo: async (videoId) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/videos/${videoId}`);
+      set((state) => ({
+        videos: state.videos.filter((video) => video._id !== videoId),
+      }));
+    } catch (error) {
+      console.error("Error deleting video:", error);
     }
   },
 }));
 
-export default useVideoCollectionStore;
+export default useVideoStore;

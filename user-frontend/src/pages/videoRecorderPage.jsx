@@ -49,7 +49,7 @@ const VideoRecorderPage = () => {
       <UserInformation isOpen={!userId} />
       <div className="absolute inset-0">
         <VideoRecorder
-          interviewID={interviewId}
+          interviewId={interviewId}
           userId={userId}
           uploadVideo={handleUploadVideo}
           questions={questions}
@@ -60,7 +60,9 @@ const VideoRecorderPage = () => {
       {isUploading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <p className="text-lg font-semibold text-gray-700">Mülakatınız kaydediliyor...</p>
+            <p className="text-lg font-semibold text-gray-700">
+              Mülakatınız kaydediliyor...
+            </p>
           </div>
         </div>
       )}

@@ -118,9 +118,23 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
   const [canSkip, setCanSkip] = useState(false);
   const [showAtOnce, setShowAtOnce] = useState(false);
   const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false);
+  const [newQuestionText, setNewQuestionText] = useState("");
+  const [newTimeLimit, setNewTimeLimit] = useState("");
+  const [error, setError] = useState("");
 
-  const handleAddQuestion = (question) => {
-    setExtraQuestions([...extraQuestions, question]);
+  const handleAddQuestion = () => {
+    if (!newQuestionText.trim() || !newTimeLimit.trim()) {
+      setError("Both question text and time limit are required.");
+    } else {
+      setExtraQuestions([
+        ...extraQuestions,
+        { questionText: newQuestionText, timeLimit: newTimeLimit },
+      ]);
+      setNewQuestionText("");
+      setNewTimeLimit("");
+      setError("");
+      setIsAddQuestionPopupOpen(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -130,7 +144,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
       title: interviewTitle,
       expireDate: new Date(expireDate).toISOString(),
       packages: selectedPackages.map((pkg) => ({
-        packageId: pkg._id, // packagesSchema'nın gerektirdiği packageId alanına uygun
+        packageId: pkg._id,
       })),
       questions: extraQuestions.map((q) => ({
         question: q.questionText,
@@ -146,9 +160,15 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="min-h-[400px] min-w-[500px] bg-white p-4 rounded shadow-md">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        className="min-h-[370px] min-w-[500px] bg-white p-4 rounded shadow-md"
+      >
         <h2 className="text-black font-bold mb-4">Create Interview</h2>
         <form onSubmit={handleSubmit}>
+          {/* Interview Title */}
           <div className="mb-4">
             <label className="text-black block text-sm font-semibold mb-1">
               Interview Title:
@@ -156,12 +176,13 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             <input
               type="text"
               className="border border-gray-200 rounded p-2 w-full"
-              placeholder="input..."
+              placeholder="Enter interview title..."
               value={interviewTitle}
               onChange={(e) => setInterviewTitle(e.target.value)}
               required
             />
           </div>
+          {/* Expire Date */}
           <div className="mb-4">
             <label className="text-black block text-sm font-semibold mb-1">
               Expire Date:
@@ -174,6 +195,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               required
             />
           </div>
+          {/* Package Selector */}
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-1">Package</label>
             <select
@@ -224,29 +246,33 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               ))}
             </div>
           </div>
-
           {/* Extra Questions */}
           <div className="mb-4">
             <label className="text-black block text-sm font-semibold mb-1">
               Extra Questions
             </label>
-            <button
+            <motion.button
               type="button"
               className="flex items-center text-blue-500 text-sm"
               onClick={() => setIsAddQuestionPopupOpen(true)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               <FaPlus className="mr-1" />
               Add Question
-            </button>
+            </motion.button>
 
             <div className="mt-2">
               {extraQuestions.map((question, index) => (
-                <div
+                <motion.div
                   key={index}
                   className="bg-gray-200 p-2 rounded mt-1 flex justify-between"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
                 >
                   <span>{`${question.questionText} (Time Limit: ${question.timeLimit} mins)`}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -276,31 +302,85 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
               />
             </div>
           </div>
-
-          <div className="flex justify-between">
-            <button
+          {/* Submission Buttons */}
+          <div className="flex justify-end space-x-2">
+            <motion.button
               type="button"
               onClick={onClose}
-              className="bg-red-500 text-white rounded p-2"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Cancel
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="submit"
-              className="bg-blue-500 text-white rounded p-2"
+              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Submit
-            </button>
+            </motion.button>
           </div>
         </form>
-      </div>
+      </motion.div>
 
-      {isAddQuestionPopupOpen && (
-        <AddQuestionPopup
-          onClose={() => setIsAddQuestionPopupOpen(false)}
-          onSubmit={handleAddQuestion}
-        />
-      )}
+      {/* Add Question Popup */}
+      <AnimatePresence>
+        {isAddQuestionPopupOpen && (
+          <motion.div
+            className="fixed inset-0 bg-gray-700 bg-opacity-75 flex justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-lg shadow-lg"
+              initial={{ y: -100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -100, opacity: 0 }}
+            >
+              <h3 className="text-xl font-semibold mb-4">Add a New Question</h3>
+              <textarea
+                placeholder="Enter question..."
+                value={newQuestionText}
+                onChange={(e) => setNewQuestionText(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 mb-4 w-full h-24"
+              />
+              <input
+                type="number"
+                placeholder="Enter time (mins)"
+                value={newTimeLimit}
+                onChange={(e) => setNewTimeLimit(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 mb-4 w-full"
+                min="1"
+              />
+              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+              <div className="flex justify-end space-x-2">
+                <motion.button
+                  onClick={() => {
+                    setIsAddQuestionPopupOpen(false);
+                    setError("");
+                  }}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  onClick={handleAddQuestion}
+                  className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Add
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -360,8 +440,8 @@ const JobPositionForm = () => {
   };
 
   return (
-    <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 w-full h-full min-h-screen rounded-3xl shadow-2xl mb-100">
-      <div className="flex items-center justify-center mb-6 mt-4">
+    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl">
+      <div className="flex items-center justify-center mb-6 mt-0">
         <h2 className="text-3xl text-gray-800 font-semibold mr-6">
           Interview List
         </h2>{" "}

@@ -1,116 +1,81 @@
-import dotenv from "dotenv";
-import axios from "axios";
+// services/videoService.ts
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import InterviewVideos from "../models/interviewVideosModel";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-export interface Video {
-  title: string;
-  file: File;
-}
-
-const VIDEO_API_BUCKET = process.env.VIDEO_API_BUCKET;
-const VIDEO_API_SECRET_KEY = process.env.VIDEO_API_SECRET_KEY;
-const VIDEO_API_ACCESS_KEY = process.env.VIDEO_API_ACCESS_KEY;
-const VIDEO_API_REGION = process.env.VIDEO_API_REGION;
-
-if (
-  !VIDEO_API_SECRET_KEY ||
-  !VIDEO_API_ACCESS_KEY ||
-  !VIDEO_API_BUCKET ||
-  !VIDEO_API_REGION
-) {
-  throw new Error("Video API configuration is missing");
-}
-
 const s3Client = new S3Client({
-  region: VIDEO_API_REGION,
+  region: process.env.VIDEO_API_REGION,
   credentials: {
-    accessKeyId: VIDEO_API_ACCESS_KEY!,
-    secretAccessKey: VIDEO_API_SECRET_KEY!,
+    accessKeyId: process.env.VIDEO_API_ACCESS_KEY!,
+    secretAccessKey: process.env.VIDEO_API_SECRET_KEY!,
   },
 });
 
-// Tüm videoları al
-export const fetchVideos = async (): Promise<Video[]> => {
+// Interview ID'ye göre tüm videoları getir
+export const fetchVideosByInterviewId = async (interviewId: string) => {
   try {
-    const response = await axios.get(`http://localhost:8000/api/videos/`);
-    console.log("Fetched videos:", response.data);
-    return response.data;
-  } catch (error: unknown) {
-    console.error("Failed to fetch videos:", (error as Error).message);
-    throw new Error(`Failed to fetch videos: ${(error as Error).message}`);
-  }
-};
+    const interviewVideos = await InterviewVideos.findOne({ interviewId });
 
-// Belirli bir ID ile video al
-export const fetchVideoById = async (videoId: string, interviewId: string) => {
-  try {
-    const interviewVideo = await InterviewVideos.findOne({
-      interviewId: interviewId,
-    });
-
-    const key = interviewVideo?.videos.find((video) => video._id === videoId)?.videoKey;
-
-    if (!key) {
-      throw new Error("Video bulunamadı");
+    if (!interviewVideos || interviewVideos.videos.length === 0) {
+      throw new Error("Videolar bulunamadı");
     }
 
-    const command = new GetObjectCommand({
-      Bucket: VIDEO_API_BUCKET,
-      Key: key,
-    });
+    // S3 URL'lerini her video için oluştur
+    const videosWithUrls = await Promise.all(
+      interviewVideos.videos.map(async (video) => {
+        const command = new GetObjectCommand({
+          Bucket: process.env.VIDEO_API_BUCKET,
+          Key: video.videoKey,
+        });
+        const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        return { ...video.toObject(), s3Url: signedUrl };
+      })
+    );
 
-    const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 3600, // 1 saat
-    });
-
-    console.log("Signed URL:", signedUrl);
-
-    return { signedUrl };
-  } catch (error: unknown) {
-    console.error("Failed to fetch video by ID:", (error as Error).message);
-    throw new Error(`Failed to fetch video by ID: ${(error as Error).message}`);
+    return videosWithUrls;
+  } catch (error) {
+    throw new Error(`Failed to fetch videos by Interview ID: ${(error as Error).message}`);
   }
 };
 
-// Video yükle
+// Tek bir video yükle
 export const uploadVideoToAPI = async (
   file: Express.Multer.File,
   userId: string,
   interviewId: string
-): Promise<{ randomFileName: string; uploadResult: any; updatedInterview: any }> => {
+) => {
   try {
     const randomFileName = `${Date.now()}.mp4`;
 
     const command = new PutObjectCommand({
-      Bucket: VIDEO_API_BUCKET,
+      Bucket: process.env.VIDEO_API_BUCKET,
       Key: randomFileName,
       Body: file.buffer,
       ContentType: file.mimetype,
+      ContentDisposition: "inline",
     });
 
     const uploadResult = await s3Client.send(command);
-    console.log("Video uploaded successfully:", uploadResult);
 
-    // Veritabanında interviewId'ye göre belgeyi güncelle veya oluştur
     const updatedInterview = await InterviewVideos.findOneAndUpdate(
-      { interviewId: interviewId },
+      { interviewId },
       {
         $push: {
           videos: {
-            userId: userId,
+            userId,
             videoKey: randomFileName,
           },
         },
       },
-      { new: true, upsert: true } // Güncellenmiş belgeyi döndür ve belge yoksa oluştur
+      { new: true, upsert: true }
     );
 
     return {
@@ -118,20 +83,32 @@ export const uploadVideoToAPI = async (
       uploadResult,
       updatedInterview,
     };
-  } catch (error: unknown) {
-    console.error("Error during video upload:", (error as Error).message);
+  } catch (error) {
     throw new Error(`Failed to upload video: ${(error as Error).message}`);
   }
 };
 
-// Video sil
-export const deleteVideo = async (videoId: string): Promise<void> => {
+// Belirli bir video sil
+export const deleteVideo = async (videoId: string, interviewId: string) => {
   try {
-    console.log("Deleting video with ID:", videoId);
-    await axios.delete(``);
-    console.log("Video deleted successfully.");
-  } catch (error: unknown) {
-    console.error("Failed to delete video:", (error as Error).message);
+    const interviewVideo = await InterviewVideos.findOne({ interviewId });
+    const video = interviewVideo?.videos.find((v) => v._id === videoId);
+
+    if (!video) {
+      throw new Error("Video bulunamadı");
+    }
+
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.VIDEO_API_BUCKET,
+      Key: video.videoKey,
+    });
+    await s3Client.send(command);
+
+    await InterviewVideos.findOneAndUpdate(
+      { interviewId },
+      { $pull: { videos: { _id: videoId } } }
+    );
+  } catch (error) {
     throw new Error(`Failed to delete video: ${(error as Error).message}`);
   }
 };

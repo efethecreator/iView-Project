@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import axios from 'axios';
+import { create } from "zustand";
+import axios from "axios";
 
 const useVideoStore = create((set) => ({
   videos: [],
@@ -8,18 +8,19 @@ const useVideoStore = create((set) => ({
   // Tüm videoları getirme
   fetchVideos: async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/videos');
+      const response = await axios.get("http://localhost:8000/api/videos");
       set({ videos: response.data });
     } catch (error) {
       console.error("Failed to fetch videos:", error.message);
     }
   },
 
-
-
   createUser: async (personalInfo) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/users', personalInfo);
+      const response = await axios.post(
+        "http://localhost:8000/api/users",
+        personalInfo
+      );
       set({ userId: response.data.id }); // Dönen userId'yi kaydedin
       return response.data.id;
     } catch (error) {
@@ -28,20 +29,23 @@ const useVideoStore = create((set) => ({
     }
   },
 
-
   // Video yükleme
   uploadVideo: async (file, interviewId, userId) => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('interviewId', interviewId);
-    formData.append('userId', userId);
+    formData.append("file", file);
+    formData.append("interviewId", interviewId);
+    formData.append("userId", userId);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/videos', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/videos",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       set((state) => ({ videos: [...state.videos, response.data] }));
       console.log("Video uploaded successfully:", response.data);
     } catch (error) {
@@ -54,7 +58,7 @@ const useVideoStore = create((set) => ({
     try {
       await axios.delete(`/api/videos/${id}`);
       set((state) => ({
-        videos: state.videos.filter((video) => video.id !== id),
+        videos: state.videos.filter((video) => video._id !== id),
       }));
       console.log("Video deleted successfully");
     } catch (error) {
