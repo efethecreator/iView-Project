@@ -63,7 +63,8 @@ const ManagePackage = () => {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl">
+    <div className="relative p-8 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl min-w-[90px] max-w-[1250px] overflow-hidden">
+      <div className="absolute inset-100 z-0 bg-gradient-to-br from-[#207c6c] to-transparent blur-2xl"></div>
       {packageData && (
         <>
           <h2 className="text-3xl text-gray-800 mb-6 font-semibold text-center">
@@ -71,7 +72,7 @@ const ManagePackage = () => {
           </h2>
 
           {/* Soru Başlığı Düzenleme Kısmı */}
-          <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-lg mb-8">
+          <div className="flex items-center justify-between p-4 rounded-xl shadow-lg mb-8 bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg border-transparent/10">
             <div className="flex flex-col w-full mr-4">
               <label
                 htmlFor="packageTitle"
@@ -82,7 +83,7 @@ const ManagePackage = () => {
               <input
                 id="packageTitle"
                 type="text"
-                className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring focus:ring-blue-200 transition-all"
+                className="border border-gray-300 rounded-lg p-3 w-full mr-4 focus:outline-none focus:ring focus:ring-blue-200 transition-all bg-transparent placeholder-gray-500"
                 placeholder="Package Title..."
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
@@ -100,12 +101,11 @@ const ManagePackage = () => {
           </div>
 
           {/* Soru Listesi Tablosu */}
-          <div className="bg-white shadow-xl rounded-xl overflow-y-auto max-h-[410px] min-h-[420px]">
+          <div className="shadow-xl rounded-xl overflow-y-auto max-h-[420px] min-h-[410px] bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg">
             <table className="min-w-full table-auto text-center overflox-x-auto">
-              {" "}
               {/* Tüm tabloyu ortalamak için text-center ekledik */}
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gradient-to-br from-white/40 to-transparent backdrop-blur-2xl">
                   <th className="px-6 py-3 text-gray-600 font-medium">#</th>
                   <th className="px-6 py-3 text-gray-600 font-medium">
                     Question
@@ -116,7 +116,7 @@ const ManagePackage = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md">
                 {packageData.questions
                   .filter(
                     (question) => !deletedQuestions.includes(question._id)
@@ -134,8 +134,6 @@ const ManagePackage = () => {
                         {question.time}
                       </td>
                       <td className="px-6 py-4 flex justify-center space-x-4">
-                        {" "}
-                        {/* Butonları ortalamak için justify-center ekledik */}
                         <motion.button
                           onClick={() => handleDeleteQuestion(question._id)}
                           className="text-red-500 hover:text-red-700"
@@ -161,8 +159,6 @@ const ManagePackage = () => {
                     </td>
                     <td className="px-6 py-4 text-gray-700">{question.time}</td>
                     <td className="px-6 py-4 flex justify-center space-x-4">
-                      {" "}
-                      {/* Butonları ortalamak için justify-center ekledik */}
                       <motion.button
                         onClick={() => handleDeleteQuestion(question.question)}
                         className="text-red-500 hover:text-red-700"

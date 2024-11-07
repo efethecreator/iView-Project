@@ -164,7 +164,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
-        className="min-h-[370px] min-w-[500px] bg-white p-4 rounded shadow-md"
+        className="min-h-[320px] min-w-[500px] bg-white p-4 rounded shadow-md"
       >
         <h2 className="text-black font-bold mb-4">Create Interview</h2>
         <form onSubmit={handleSubmit}>
@@ -277,31 +277,6 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
             </div>
           </div>
 
-          {/* Options: Can Skip and Show At Once */}
-          <div className="flex justify-between mb-4">
-            <div>
-              <label className="block text-black font-semibold mb-1">
-                Can Skip
-              </label>
-              <input
-                type="checkbox"
-                checked={canSkip}
-                onChange={() => setCanSkip(!canSkip)}
-                className="border p-2 rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-black font-semibold mb-1">
-                Show At Once
-              </label>
-              <input
-                type="checkbox"
-                checked={showAtOnce}
-                onChange={() => setShowAtOnce(!showAtOnce)}
-                className="border p-2 rounded-md"
-              />
-            </div>
-          </div>
           {/* Submission Buttons */}
           <div className="flex justify-end space-x-2">
             <motion.button
@@ -385,13 +360,14 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
   );
 };
 
-// Main component to manage interviews and render the list
 const JobPositionForm = () => {
   const { interviews, fetchInterviews, createInterview, deleteInterview } =
     useInterviewStore();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [questionPackages, setQuestionPackages] = useState([]);
   const [showInfo, setShowInfo] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const interviewsPerPage = 15;
 
   useEffect(() => {
     const loadQuestionPackages = async () => {
@@ -407,28 +383,18 @@ const JobPositionForm = () => {
     fetchInterviews();
   }, [fetchInterviews]);
 
-  const handleAddJobPosition = () => {
-    setIsPopupOpen(true);
-  };
-
-  const handlePopupClose = () => {
-    setIsPopupOpen(false);
-  };
-
+  const handleAddJobPosition = () => setIsPopupOpen(true);
+  const handlePopupClose = () => setIsPopupOpen(false);
   const handleSubmit = async (data) => {
     await createInterview(data);
     setIsPopupOpen(false);
   };
-
   const handleCopyLink = (id) => {
     const link = `http://localhost:5000/${id}`;
     navigator.clipboard.writeText(link);
     alert("Link copied to clipboard!");
   };
-
-  const handleDelete = async (id) => {
-    await deleteInterview(id);
-  };
+  const handleDelete = async (id) => await deleteInterview(id);
 
   const getTotalQuestionsCount = (interview) => {
     const extraQuestionsCount = interview.questions?.length || 0;
@@ -439,13 +405,21 @@ const JobPositionForm = () => {
     return extraQuestionsCount + packageQuestionsCount;
   };
 
+  const indexOfLastInterview = currentPage * interviewsPerPage;
+  const indexOfFirstInterview = indexOfLastInterview - interviewsPerPage;
+  const currentInterviews = interviews.slice(
+    indexOfFirstInterview,
+    indexOfLastInterview
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl">
+    <div className="relative p-8 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl min-w-[90px] max-w-[1250px] overflow-hidden">
       <div className="flex items-center justify-center mb-6 mt-0">
         <h2 className="text-3xl text-gray-800 font-semibold mr-6">
           Interview List
-        </h2>{" "}
-        {/* Başlık ve buton arasına boşluk için mr-6 ekledik */}
+        </h2>
         <motion.button
           onClick={handleAddJobPosition}
           className="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center justify-center space-x-1"
@@ -465,74 +439,91 @@ const JobPositionForm = () => {
         />
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {interviews &&
-          interviews.map((interview) => (
-            <div
-              key={interview._id}
-              className="bg-white border rounded-lg p-4 shadow-lg relative"
-            >
-              <div className="absolute top-2 left-2">
-                <motion.button
-                  onClick={() => setShowInfo(interview._id)}
-                  className="text-blue-500 hover:text-blue-700 transition-colors"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  <FaInfoCircle className="text-xl" />
-                </motion.button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {currentInterviews.map((interview) => (
+          <div
+            key={interview._id}
+            className="bg-gradient-to-br from-[#B2D2CC] to-[#6CB7AF] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative"
+          >
+            <div className="absolute top-2 left-2">
+              <motion.button
+                onClick={() => setShowInfo(interview._id)}
+                className="text-blue-500 hover:text-blue-700 transition-colors"
+                whileHover={{ scale: 1.2 }}
+              >
+                <FaInfoCircle className="text-xl" />
+              </motion.button>
+            </div>
+            <div className="absolute top-2 right-2 flex space-x-2">
+              <motion.button
+                onClick={() => handleCopyLink(interview._id)}
+                className="text-green-500 hover:text-green-700 transition-colors"
+                whileHover={{ scale: 1.2, rotate: -15 }}
+              >
+                <FaCopy className="text-xl" />
+              </motion.button>
+              <motion.button
+                onClick={() => handleDelete(interview._id)}
+                className="text-red-500 hover:text-red-700 transition-colors"
+                whileHover={{ rotate: 15, scale: 1.2 }}
+                whileTap={{ rotate: -15, scale: 0.9 }}
+              >
+                <FaTrash className="text-xl" />
+              </motion.button>
+            </div>
+            <h3 className="text-black font-semibold mb-2 mt-5 text-2xl">
+              {interview.title}
+            </h3>
+            <p className="text-sm mb-2">Candidates:</p>
+            <div className="bg-gray-300 rounded-lg p-2 flex justify-around mb-4">
+              <div className="text-center border-l border-gray-400">
+                <p className="text-xs text-gray-600 ml-2">TOTAL</p>
+                <p className="text-xl font-semibold">
+                  {getTotalQuestionsCount(interview)}
+                </p>
               </div>
-              <div className="absolute top-2 right-2 flex space-x-2">
-                <motion.button
-                  onClick={() => handleCopyLink(interview._id)}
-                  className="text-green-500 hover:text-green-700 transition-colors"
-                  whileHover={{ scale: 1.2, rotate: -15 }}
-                >
-                  <FaCopy className="text-xl" />
-                </motion.button>
-                <motion.button
-                  onClick={() => handleDelete(interview._id)}
-                  className="text-red-500 hover:text-red-700 transition-colors"
-                  whileHover={{ rotate: 15, scale: 1.2 }}
-                  whileTap={{ rotate: -15, scale: 0.9 }}
-                >
-                  <FaTrash className="text-xl" />
-                </motion.button>
-              </div>
-              <h3 className="text-black font-semibold mb-2 mt-5 text-2xl">
-                {interview.title}
-              </h3>
-              <p className="text-sm mb-2">Candidates:</p>
-              <div className="bg-gray-300 rounded-lg p-2 flex justify-around mb-4">
-                <div className="text-center border-l border-gray-400">
-                  <p className="text-xs text-gray-600 ml-2">TOTAL</p>
-                  <p className="text-xl font-semibold">
-                    {getTotalQuestionsCount(interview)}
-                  </p>
-                </div>
-                <div className="text-center border-l border-gray-400">
-                  <p className="text-xs text-gray-600 ml-2">ON HOLD</p>
-                  <p className="text-xl font-semibold">
-                    {Math.floor(
-                      Math.random() * getTotalQuestionsCount(interview)
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-between mt-4 items-center text-sm text-red-500">
-                <span>
-                  {interview.isPublished ? "Published" : "Unpublished"}
-                </span>
-                <button
-                  className="text-blue-500 hover:underline"
-                  onClick={() =>
-                    (window.location.href = `/admin-dashboard/video-collection/${interview._id}`)
-                  }
-                >
-                  See Videos &gt;
-                </button>
+              <div className="text-center border-l border-gray-400">
+                <p className="text-xs text-gray-600 ml-2">ON HOLD</p>
+                <p className="text-xl font-semibold">
+                  {Math.floor(
+                    Math.random() * getTotalQuestionsCount(interview)
+                  )}
+                </p>
               </div>
             </div>
-          ))}
+            <div className="flex justify-between mt-4 items-center text-sm text-red-500">
+              <span>{interview.isPublished ? "Published" : "Unpublished"}</span>
+              <button
+                className="text-blue-500 hover:underline"
+                onClick={() =>
+                  (window.location.href = `/admin-dashboard/video-collection/${interview._id}`)
+                }
+              >
+                See Videos &gt;
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Gri alan içinde sabitlenmiş Pagination */}
+      <div className="absolute bottom-0 left-0 right-0 flex justify-center p-5 from-gray-100 to-gray-200 rounded-3xl">
+        {Array.from(
+          { length: Math.ceil(interviews.length / interviewsPerPage) },
+          (_, i) => (
+            <button
+              key={i}
+              onClick={() => paginate(i + 1)}
+              className={`mx-1 px-3 py-1 border rounded-full ${
+                i + 1 === currentPage
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-800"
+              }`}
+            >
+              {i + 1}
+            </button>
+          )
+        )}
       </div>
 
       {showInfo && (
