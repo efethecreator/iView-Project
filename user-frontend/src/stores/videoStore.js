@@ -29,6 +29,21 @@ const useVideoStore = create((set) => ({
     }
   },
 
+  // Mülakat süresinin dolup dolmadığını kontrol etme
+  checkInterviewStatus: async (interviewId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/interview/${interviewId}`
+      );
+      const { expireDate } = response.data;
+      const isExpired = new Date(expireDate) < new Date(); // Süresi dolmuşsa true döner
+      return !isExpired; // Süresi dolmamışsa true, dolmuşsa false döner
+    } catch (error) {
+      console.error("Failed to check interview status:", error.message);
+      return false; // Hata durumunda süresi dolmuş olarak kabul et
+    }
+  },
+
   // Video yükleme
   uploadVideo: async (file, interviewId, userId) => {
     const formData = new FormData();

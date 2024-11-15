@@ -6,7 +6,7 @@ import QuestionManagement from "./components/QuestionManagement";
 import ManagePackage from "./components/ManagePackage";
 import CandidateInterviews from "./pages/CandidateInterviews";
 import VideoCollectionPage from "./pages/VideoCollectionPage";
-// import VideoDetailPage from "./pages/VideoDetailPage"; // Yeni import
+import NotFound from "./pages/NotFound"; // 404 sayfası eklendi
 import useQuestionStore from "./store/questionStore";
 
 const App = () => {
@@ -21,10 +21,6 @@ const App = () => {
     loadPackages();
   }, [fetchQuestionPackages]);
 
-  // const getSelectedPackage = (packageId) => {
-  //   return questionPackages.find((pkg) => pkg._id === packageId);
-  // };
-
   return (
     <Router>
       <Routes>
@@ -36,9 +32,7 @@ const App = () => {
           {/* Soru yönetimi */}
           <Route
             path="questions"
-            element={
-              <QuestionManagement setQuestionPackages={setQuestionPackages} />
-            }
+            element={<QuestionManagement setQuestionPackages={setQuestionPackages} />}
           />
 
           {/* Paket düzenleme sayfası */}
@@ -57,8 +51,10 @@ const App = () => {
           />
         </Route>
 
-        {/* Video detay sayfası */}
-        {/* <Route path="/video/:id" element={<VideoDetailPage />} /> */}
+        {/* 404 Sayfası */}
+        <Route path="/404" element={<NotFound />} />
+        {/* Geçersiz rotalar için 404 yönlendirme */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

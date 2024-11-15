@@ -43,7 +43,7 @@ const AdminLayout = () => {
       </div>
 
       {/* İçerik Alanı */}
-      <div className="flex-1 px-3 py-6 bg-white items-start bg-gradient-to-t from-[#207c6c] to-white ">
+      <div className="flex-1 px-3 py-8 bg-white items-start bg-gradient-to-t from-[#207c6c] to-white ">
         {isHomePage && (
           <h1 className="text-4xl text-gray-800 font-semibold">Hoş Geldin!</h1>
         )}
