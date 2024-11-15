@@ -101,11 +101,11 @@ const ManagePackage = () => {
           </div>
 
           {/* Soru Listesi Tablosu */}
-          <div className="shadow-xl rounded-xl overflow-y-auto max-h-[420px] min-h-[410px] bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg">
+          <div className="shadow-xl rounded-xl overflow-y-auto max-h-[420px] min-h-[410px] bg-[#DAE9E6]/60 backdrop-blur-lg">
             <table className="min-w-full table-auto text-center overflox-x-auto">
               {/* Tüm tabloyu ortalamak için text-center ekledik */}
               <thead>
-                <tr className="bg-gradient-to-br from-white/40 to-transparent backdrop-blur-2xl">
+                <tr className="to-transparent backdrop-blur-md border-[1px] border-l-[0px] border-r-[0px] border-t-[0px] border-gray-600">
                   <th className="px-6 py-3 text-gray-600 font-medium">#</th>
                   <th className="px-6 py-3 text-gray-600 font-medium">
                     Question
@@ -116,7 +116,7 @@ const ManagePackage = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md">
+              <tbody className="border-[1px] border-l-[0px] border-r-[0px] border-t-[0px] border-gray-400 ">
                 {packageData.questions
                   .filter(
                     (question) => !deletedQuestions.includes(question._id)
@@ -124,7 +124,7 @@ const ManagePackage = () => {
                   .map((question, index) => (
                     <tr
                       key={question._id}
-                      className="border-t hover:bg-gray-50 transition-all"
+                      className="border-[1px] border-l-[0px] border-r-[0px] border-t-[0px] border-gray-400 hover:!bg-[#97C1BA] transition-all"
                     >
                       <td className="px-6 py-4 text-gray-700">{index + 1}</td>
                       <td className="px-6 py-4 text-gray-700">

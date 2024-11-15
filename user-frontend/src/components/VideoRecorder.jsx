@@ -1,15 +1,30 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useVideoStore from "../stores/videoStore"; // Video store'u import edin
 
 const VideoRecorder = ({ interviewId, userId, uploadVideo, questions }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentQuestionTime, setCurrentQuestionTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
+  const navigate = useNavigate();
+  const { checkInterviewStatus } = useVideoStore(); // checkInterviewStatus fonksiyonunu çağırıyoruz
 
   const mediaRecorderRef = useRef(null);
   const videoRef = useRef(null);
   const chunks = useRef([]);
   const intervalRef = useRef(null);
+
+  useEffect(() => {
+    // Mülakatın süresinin dolup dolmadığını kontrol etme
+    const checkStatus = async () => {
+      const isActive = await checkInterviewStatus(interviewId);
+      if (!isActive) {
+        navigate("/404"); // Süresi dolmuşsa 404 sayfasına yönlendir
+      }
+    };
+    checkStatus();
+  }, [interviewId, checkInterviewStatus, navigate]);
 
   useEffect(() => {
     const initCamera = async () => {
@@ -41,7 +56,7 @@ const VideoRecorder = ({ interviewId, userId, uploadVideo, questions }) => {
     };
     mediaRecorderRef.current.start();
     setIsRecording(true);
-    startQuestionTimer(); // Soru zamanlayıcısını kaydı başlatırken başlat
+    startQuestionTimer();
   };
 
   const stopRecording = () => {

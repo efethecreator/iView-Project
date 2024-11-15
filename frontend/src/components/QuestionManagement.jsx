@@ -35,29 +35,38 @@ const QuestionManagement = () => {
         </h2>
 
         {/* New Package Input Area */}
-        <div className="flex items-center justify-between p-4 rounded-xl shadow-lg mb-8 bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg">
-          <input
-            type="text"
-            className="border border-gray-300 rounded-lg p-3 w-full mr-4 focus:outline-none focus:ring focus:ring-blue-200 transition-all bg-transparent placeholder-gray-500"
-            placeholder="Enter new package name..."
-            value={newPackageTitle}
-            onChange={(e) => setNewPackageTitle(e.target.value)}
-          />
+        <div className="flex items-center justify-between p-4 rounded-xl shadow-lg mb-8 bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg border-transparent/10">
+          <div className="flex flex-col w-full mr-4">
+            <label
+              htmlFor="packageTitle"
+              className="text-gray-700 mb-2 font-medium"
+            >
+              Enter New Package Name
+            </label>
+            <input
+              type="text"
+              className="border border-gray-300 rounded-lg p-3 w-full mr-4 focus:outline-none focus:ring focus:ring-blue-200 transition-all bg-transparent placeholder-gray-500"
+              placeholder="Enter new package name..."
+              value={newPackageTitle}
+              onChange={(e) => setNewPackageTitle(e.target.value)}
+            />
+          </div>
           <motion.button
             onClick={addQuestionPackage}
-            className="text-blue-500 hover:text-blue-700 transition-colors p-3"
-            whileHover={{ rotate: 15, scale: 1.2 }}
-            whileTap={{ rotate: -15, scale: 0.9 }}
+            className="bg-blue-500 text-white px-4 py-1.5 rounded-full shadow-lg flex items-center justify-center space-x-2 mt-7"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <FaPlus className="text-3xl" />
+            <FaPlus />
+            <span className="text-sm">Add Package</span>
           </motion.button>
         </div>
 
         {/* Question Packages Table */}
-        <div className="shadow-xl rounded-xl overflow-y-auto max-h-[464px] min-h-[450px] bg-gradient-to-br from-white/40 to-transparent backdrop-blur-lg">
+        <div className="shadow-xl rounded-xl overflow-y-auto max-h-[464px] min-h-[450px] bg-[#DAE9E6]/60 backdrop-blur-lg">
           <table className="min-w-full table-auto text-center">
             <thead>
-              <tr className="bg-gradient-to-br from-white/40 to-transparent backdrop-blur-md">
+              <tr className="to-transparent backdrop-blur-md border-[1px] border-l-[0px] border-r-[0px] border-t-[0px] border-gray-600">
                 <th className="px-6 py-3 text-gray-600 font-medium">#</th>
                 <th className="px-6 py-3 text-gray-600 font-medium">
                   Package Name
@@ -68,11 +77,11 @@ const QuestionManagement = () => {
                 <th className="px-6 py-3 text-gray-600 font-medium">Action</th>
               </tr>
             </thead>
-            <tbody className="bg-gradient-to-br from-white/10 to-transparent backdrop-blur-md">
+            <tbody className="from-white/10 to-white/10">
               {questionPackages.map((pkg, index) => (
                 <tr
                   key={pkg._id}
-                  className="border-t hover:bg-white/40 transition-all"
+                  className="border-[1px] border-l-[0px] border-r-[0px] border-t-[0px] border-gray-400 hover:!bg-[#97C1BA] transition-all"
                 >
                   <td className="px-6 py-4 text-gray-700">{index + 1}</td>
                   <td className="px-6 py-4 text-gray-700">{pkg.title}</td>

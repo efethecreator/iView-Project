@@ -115,8 +115,6 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
   const [expireDate, setExpireDate] = useState("");
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [extraQuestions, setExtraQuestions] = useState([]);
-  const [canSkip, setCanSkip] = useState(false);
-  const [showAtOnce, setShowAtOnce] = useState(false);
   const [isAddQuestionPopupOpen, setIsAddQuestionPopupOpen] = useState(false);
   const [newQuestionText, setNewQuestionText] = useState("");
   const [newTimeLimit, setNewTimeLimit] = useState("");
@@ -150,8 +148,6 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
         question: q.questionText,
         time: q.timeLimit,
       })),
-      canSkip,
-      showAtOnce,
     };
 
     onSubmit(interviewData);
@@ -360,6 +356,7 @@ const Popup = ({ onClose, onSubmit, questionPackages }) => {
   );
 };
 
+
 const JobPositionForm = () => {
   const { interviews, fetchInterviews, createInterview, deleteInterview } =
     useInterviewStore();
@@ -369,6 +366,7 @@ const JobPositionForm = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const interviewsPerPage = 15;
 
+  // Soru paketlerini yükleme ve mülakatları güncelleme
   useEffect(() => {
     const loadQuestionPackages = async () => {
       try {
@@ -376,25 +374,42 @@ const JobPositionForm = () => {
         const data = await response.json();
         setQuestionPackages(data);
       } catch (error) {
-        console.error("Error loading question packages:", error);
+        console.error("Soru paketleri yüklenirken hata oluştu:", error);
       }
     };
     loadQuestionPackages();
     fetchInterviews();
   }, [fetchInterviews]);
 
+  // isPublished durumunu güncelleyen fonksiyon
+  const processedInterviews = interviews.map((interview) => ({
+    ...interview,
+    isPublished: new Date(interview.expireDate) > new Date(),
+  }));
+
   const handleAddJobPosition = () => setIsPopupOpen(true);
   const handlePopupClose = () => setIsPopupOpen(false);
   const handleSubmit = async (data) => {
     await createInterview(data);
     setIsPopupOpen(false);
+    fetchInterviews(); // Yeni mülakat eklendikten sonra listeyi yenileyin
   };
-  const handleCopyLink = (id) => {
-    const link = `http://localhost:5000/${id}`;
+
+  // Linki sadece isPublished durumunda kopyalama
+  const handleCopyLink = (interview) => {
+    if (!interview.isPublished) {
+      alert("Bu mülakat süresi dolmuş. Link kopyalanamaz.");
+      return;
+    }
+    const link = `http://localhost:5000/${interview._id}`;
     navigator.clipboard.writeText(link);
-    alert("Link copied to clipboard!");
+    alert("Link kopyalandı!");
   };
-  const handleDelete = async (id) => await deleteInterview(id);
+
+  const handleDelete = async (id) => {
+    await deleteInterview(id);
+    fetchInterviews(); // Mülakat silindikten sonra listeyi yenileyin
+  };
 
   const getTotalQuestionsCount = (interview) => {
     const extraQuestionsCount = interview.questions?.length || 0;
@@ -407,7 +422,7 @@ const JobPositionForm = () => {
 
   const indexOfLastInterview = currentPage * interviewsPerPage;
   const indexOfFirstInterview = indexOfLastInterview - interviewsPerPage;
-  const currentInterviews = interviews.slice(
+  const currentInterviews = processedInterviews.slice(
     indexOfFirstInterview,
     indexOfLastInterview
   );
@@ -443,7 +458,7 @@ const JobPositionForm = () => {
         {currentInterviews.map((interview) => (
           <div
             key={interview._id}
-            className="bg-gradient-to-br from-[#B2D2CC] to-[#6CB7AF] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative"
+            className="bg-gradient-to-br from-[#5DB0A6] to-[#6CB7AF] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative"
           >
             <div className="absolute top-2 left-2">
               <motion.button
@@ -456,8 +471,11 @@ const JobPositionForm = () => {
             </div>
             <div className="absolute top-2 right-2 flex space-x-2">
               <motion.button
-                onClick={() => handleCopyLink(interview._id)}
-                className="text-green-500 hover:text-green-700 transition-colors"
+                onClick={() => handleCopyLink(interview)}
+                className={`text-green-500 hover:text-green-700 transition-colors ${
+                  !interview.isPublished && "cursor-not-allowed"
+                }`}
+                disabled={!interview.isPublished}
                 whileHover={{ scale: 1.2, rotate: -15 }}
               >
                 <FaCopy className="text-xl" />
@@ -506,7 +524,7 @@ const JobPositionForm = () => {
         ))}
       </div>
 
-      {/* Gri alan içinde sabitlenmiş Pagination */}
+      {/* Pagination */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center p-5 from-gray-100 to-gray-200 rounded-3xl">
         {Array.from(
           { length: Math.ceil(interviews.length / interviewsPerPage) },
