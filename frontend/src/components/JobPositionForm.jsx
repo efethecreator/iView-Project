@@ -364,6 +364,7 @@ const JobPositionForm = () => {
   const [questionPackages, setQuestionPackages] = useState([]);
   const [showInfo, setShowInfo] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const { videos, fetchVideos } = useVideoStore();
   const interviewsPerPage = 15;
 
   // Soru paketlerini yükleme ve mülakatları güncelleme
@@ -381,29 +382,19 @@ const JobPositionForm = () => {
     fetchInterviews();
   }, [fetchInterviews]);
 
-  useEffect(() => {
-    if (interviews.length > 0) {
-      interviews.forEach((interview) => fetchVideos(interview._id));
-    }
-  }, [interviews, fetchVideos]);
-
-  const handleAddJobPosition = () => {
-    setIsPopupOpen(true);
-  };
-
-  const handlePopupClose = () => {
-    setIsPopupOpen(false);
-  };
   // isPublished durumunu güncelleyen fonksiyon
   const processedInterviews = interviews.map((interview) => ({
     ...interview,
     isPublished: new Date(interview.expireDate) > new Date(),
   }));
 
+  const handleAddJobPosition = () => setIsPopupOpen(true);
+  const handlePopupClose = () => setIsPopupOpen(false);
   const handleSubmit = async (data) => {
     await createInterview(data);
     setIsPopupOpen(false);
     fetchInterviews(); // Yeni mülakat eklendikten sonra listeyi yenileyin
+
   };
 
   // Linki sadece isPublished durumunda kopyalama
@@ -417,18 +408,15 @@ const JobPositionForm = () => {
     alert("Link kopyalandı!");
   };
 
+  useEffect(() => {
+    if (interviews.length > 0) {
+      interviews.forEach((interview) => fetchVideos(interview._id));
+    }
+  }, [interviews, fetchVideos]);
+
   const handleDelete = async (id) => {
     await deleteInterview(id);
     fetchInterviews(); // Mülakat silindikten sonra listeyi yenileyin
-  };
-
-  const getTotalQuestionsCount = (interview) => {
-    const extraQuestionsCount = interview.questions?.length || 0;
-    const selectedPackage = questionPackages.find(
-      (pkg) => pkg.id === interview.selectedPackage
-    );
-    const packageQuestionsCount = selectedPackage?.questions.length || 0;
-    return extraQuestionsCount + packageQuestionsCount;
   };
 
   const indexOfLastInterview = currentPage * interviewsPerPage;
@@ -507,16 +495,12 @@ const JobPositionForm = () => {
             <div className="bg-gray-300 rounded-lg p-2 flex justify-around mb-4">
               <div className="text-center border-l border-gray-400">
                 <p className="text-xs text-gray-600 ml-2">TOTAL</p>
-                <p className="text-xl font-semibold">
-                  {getTotalQuestionsCount(interview)}
-                </p>
+                <p className="text-xl font-semibold">{interview.totalVideos}</p>
               </div>
               <div className="text-center border-l border-gray-400">
                 <p className="text-xs text-gray-600 ml-2">ON HOLD</p>
                 <p className="text-xl font-semibold">
-                  {Math.floor(
-                    Math.random() * getTotalQuestionsCount(interview)
-                  )}
+                  {interview.pendingVideos}
                 </p>
               </div>
             </div>
