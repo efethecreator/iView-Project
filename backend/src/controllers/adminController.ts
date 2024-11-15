@@ -22,7 +22,7 @@ class AdminController {
       }
 
       // Eğer token null ise, 401 Unauthorized hatası döndür
-      res.status(401).json({ message: 'Geçersiz email veya şifre!' });
+      res.status(401).json({ message: 'Geçersiz email veya şifre!' });  
     } catch (error) {
       // Hata durumunda 500 yanıtı döndür
       console.error(error);

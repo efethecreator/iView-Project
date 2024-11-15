@@ -4,10 +4,12 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import InterviewVideos from "../models/interviewVideosModel";
 import dotenv from "dotenv";
+import InterviewModel from "../models/interviewModel";
 
 dotenv.config();
 
@@ -35,14 +37,52 @@ export const fetchVideosByInterviewId = async (interviewId: string) => {
           Bucket: process.env.VIDEO_API_BUCKET,
           Key: video.videoKey,
         });
-        const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        const signedUrl = await getSignedUrl(s3Client, command, {
+          expiresIn: 3600,
+        });
         return { ...video.toObject(), s3Url: signedUrl };
       })
     );
 
     return videosWithUrls;
   } catch (error) {
-    throw new Error(`Failed to fetch videos by Interview ID: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to fetch videos by Interview ID: ${(error as Error).message}`
+    );
+  }
+};
+
+export const updateInterviewVideos = async (
+  interviewId: string,
+  userId: string,
+  videoId: string,
+  pass: boolean,
+  fail: boolean,
+  note: string
+) => {
+  try {
+    const interviewVideos = await InterviewVideos.findOne({ interviewId });
+    if (!interviewVideos) {
+      throw new Error("Interview videos not found");
+    }
+
+    const video = interviewVideos.videos.find(
+      (video) => video.userId === userId && video.id.toString() === videoId
+    );
+
+    if (!video) {
+      throw new Error("Video not found for specified userId and videoId");
+    }
+
+    video.pass = pass;
+    video.fail = fail;
+    video.note = note;
+
+    await interviewVideos.save();
+  } catch (error) {
+    throw new Error(
+      `Failed to update interview videos: ${(error as Error).message}`
+    );
   }
 };
 
@@ -54,10 +94,11 @@ export const uploadVideoToAPI = async (
 ) => {
   try {
     const randomFileName = `${Date.now()}.mp4`;
+    const fileKey = `${interviewId}/${randomFileName}`
 
     const command = new PutObjectCommand({
       Bucket: process.env.VIDEO_API_BUCKET,
-      Key: randomFileName,
+      Key: `${interviewId}/${randomFileName}`,
       Body: file.buffer,
       ContentType: file.mimetype,
       ContentDisposition: "inline",
@@ -71,15 +112,27 @@ export const uploadVideoToAPI = async (
         $push: {
           videos: {
             userId,
-            videoKey: randomFileName,
+            videoKey: fileKey,
           },
         },
       },
       { new: true, upsert: true }
     );
 
+    const videolen = updatedInterview?.videos.length;
+
+    const pendingVideoslen = updatedInterview?.videos.filter(
+      (video) => !video.pass && !video.fail
+    ).length;
+
+    await InterviewModel.findByIdAndUpdate(
+      interviewId,
+      { totalVideos: videolen, pendingVideos: pendingVideoslen },
+      { new: true }
+    );
+
     return {
-      randomFileName,
+      fileKey,
       uploadResult,
       updatedInterview,
     };
@@ -89,26 +142,38 @@ export const uploadVideoToAPI = async (
 };
 
 // Belirli bir video sil
-export const deleteVideo = async (videoId: string, interviewId: string) => {
-  try {
-    const interviewVideo = await InterviewVideos.findOne({ interviewId });
-    const video = interviewVideo?.videos.find((v) => v._id === videoId);
+// services/videoService.ts
 
-    if (!video) {
-      throw new Error("Video bulunamadı");
+export const deleteVideo = async (interviewId: string) => {
+  try {
+    console.log(`Deleting all items under interview ID: ${interviewId}`);
+
+    // 1. Listeyi çekin
+    const listParams = {
+      Bucket: process.env.VIDEO_API_BUCKET, // BUCKET_NAME yerine sizin kullandığınız bucket key
+      Prefix: `${interviewId}/`, // interviewId dizinini prefix olarak belirtiyoruz
+    };
+    const listedObjects = await s3Client.send(
+      new ListObjectsV2Command(listParams)
+    );
+
+    if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
+      console.log("Folder is empty or does not exist.");
+      return;
     }
 
-    const command = new DeleteObjectCommand({
-      Bucket: process.env.VIDEO_API_BUCKET,
-      Key: video.videoKey,
-    });
-    await s3Client.send(command);
-
-    await InterviewVideos.findOneAndUpdate(
-      { interviewId },
-      { $pull: { videos: { _id: videoId } } }
+    // 2. Her bir dosya için silme işlemi
+    const deletePromises = listedObjects.Contents.map(({ Key }) =>
+      s3Client.send(
+        new DeleteObjectCommand({ Bucket: process.env.VIDEO_API_BUCKET, Key })
+      )
     );
+
+    await Promise.all(deletePromises);
+
+    console.log(`All videos under interview ID ${interviewId} deleted successfully.`);
   } catch (error) {
-    throw new Error(`Failed to delete video: ${(error as Error).message}`);
+    console.error("Error deleting videos from S3:", error);
+    throw error;
   }
 };

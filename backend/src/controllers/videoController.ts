@@ -17,6 +17,21 @@ export const getVideoById = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+export const updateInterviewVideos = async (req : Request, res : Response) : Promise<void> => {
+  try {
+    const { interviewId, userId, videoId, pass, fail, note } = req.body;
+    if (!interviewId || !userId || !videoId) {
+      res.status(400).json({ message: "Eksik interviewId, userId veya videoId." });
+      return;
+    }
+    const updatedInterview = await VideoService.updateInterviewVideos(interviewId, userId, videoId, pass, fail, note);
+    res.status(200).json(updatedInterview);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Video güncellenemedi";
+    res.status(500).json({ message, error });
+  }
+}
+
 // Video yükle
 export const uploadVideo = async (
   req: Request,
@@ -64,18 +79,21 @@ export const deleteVideo = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id: videoId } = req.params;
     const { interviewId } = req.body;
 
-    if (!interviewId || !videoId) {
-      res.status(400).json({ message: "Eksik video veya interview ID" });
+    if (!interviewId) {
+      res.status(400).json({ message: "Eksik interview ID" });
       return;
     }
 
-    await VideoService.deleteVideo(videoId, interviewId);
+    // Tüm videoları sil
+    await VideoService.deleteVideo(interviewId);
+
+
     res.status(204).send();
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Video silinemedi";
+    const message =
+      error instanceof Error ? error.message : "Videolar silinemedi";
     res.status(500).json({ message, error });
   }
 };

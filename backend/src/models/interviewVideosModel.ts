@@ -9,6 +9,9 @@ export interface IInterviewVideos extends Document {
 interface IVideos extends Document {
   userId: string;
   videoKey: string;
+  pass: boolean;
+  fail: boolean;
+  note: string;
 }
 
 const videosSchema = new Schema<IVideos>({
@@ -20,6 +23,25 @@ const videosSchema = new Schema<IVideos>({
     type: String,
     required: true,
   },
+
+  pass: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+
+  fail: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+
+  note: {
+    type: String,
+    required: false,
+    default: "",
+  },
+
 });
 
 // Mongoose schema for Interview

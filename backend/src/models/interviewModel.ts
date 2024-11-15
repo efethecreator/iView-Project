@@ -13,6 +13,8 @@ export interface IInterview extends Document {
   questions: Question[]; // Assuming questions are strings
   expireDate: Date;
   canSkip: boolean;
+  totalVideos: number;
+  pendingVideos: number;
   showAtOnce: boolean;
   interviewLink?: string; // Optional field
   users: Types.ObjectId[]; // Referencing Users
@@ -67,6 +69,16 @@ const InterviewSchema: Schema = new Schema<IInterview>(
       type: Boolean,
       required: true,
       default: false,
+    },
+    totalVideos: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    pendingVideos: {
+      type: Number,
+      required: false,
+      default: 0,
     },
     interviewLink: {
       type: String,

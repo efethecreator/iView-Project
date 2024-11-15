@@ -3,19 +3,22 @@ import axios from "axios";
 
 const useVideoStore = create((set) => ({
   videos: [],
+  questions: [],
+  statusData: {},
+
+  // Videoları interviewId'ye göre getir
   fetchVideos: async (interviewId) => {
     try {
       const response = await axios.get(
         `http://localhost:8000/api/videos/${interviewId}`
       );
-  
+
       const videoData = await Promise.all(
         response.data.map(async (video) => {
-          // `s3Url` artık backend'den döndüğü için tekrar oluşturmanıza gerek yok.
           const userResponse = await axios.get(
             `http://localhost:8000/api/users/${video.userId}`
           );
-          return { ...video, user: userResponse.data }; // sadece user bilgisi ekleniyor
+          return { ...video, user: userResponse.data };
         })
       );
 
@@ -24,6 +27,20 @@ const useVideoStore = create((set) => ({
       console.error("Error fetching videos:", error);
     }
   },
+
+  // Soruları interviewId'ye göre getir
+  fetchQuestions: async (interviewId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/interviews/${interviewId}/questions`
+      );
+      set({ questions: response.data.questions });
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+    }
+  },
+
+  // Video yükle
   uploadVideo: async (file, userId, interviewId) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -41,16 +58,22 @@ const useVideoStore = create((set) => ({
       console.error("Error uploading video:", error);
     }
   },
-  deleteVideo: async (videoId) => {
+
+  // Video sil
+  deleteVideo: async (videoId, interviewId) => {
     try {
-      await axios.delete(`http://localhost:8000/api/videos/${videoId}`);
+      await axios.delete(`http://localhost:8000/api/videos/${videoId}`, {
+        data: { interviewId },
+      });
+  
       set((state) => ({
         videos: state.videos.filter((video) => video._id !== videoId),
       }));
     } catch (error) {
       console.error("Error deleting video:", error);
     }
-  },
+  },   
+
 }));
 
 export default useVideoStore;

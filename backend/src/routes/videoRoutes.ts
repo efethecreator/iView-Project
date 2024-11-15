@@ -1,5 +1,5 @@
 import express from "express";
-import { getVideoById, uploadVideo, deleteVideo } from "../controllers/videoController";
+import { getVideoById, uploadVideo, deleteVideo, updateInterviewVideos } from "../controllers/videoController";
 import multer from "multer";
 
 const storage = multer.memoryStorage();
@@ -15,5 +15,7 @@ router.post("/", upload.single("file"), uploadVideo);
 
 // DELETE: Video sil
 router.delete("/:id", deleteVideo);
+
+router.put("/", updateInterviewVideos)
 
 export default router;

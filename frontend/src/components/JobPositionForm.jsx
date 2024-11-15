@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FaTimes, FaPlus, FaInfoCircle, FaCopy, FaTrash } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import useInterviewStore from "../store/useInterviewStore";
+import useVideoStore from "../store/useVideoCollectionStore";
 
 const InterviewInfoPopup = ({ interviewId, onClose }) => {
   const { interviewQuestions, fetchInterviewQuestions } = useInterviewStore();
@@ -392,6 +393,7 @@ const JobPositionForm = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [questionPackages, setQuestionPackages] = useState([]);
   const [showInfo, setShowInfo] = useState(null);
+  const { videos, fetchVideos } = useVideoStore();
 
   useEffect(() => {
     const loadQuestionPackages = async () => {
@@ -406,6 +408,12 @@ const JobPositionForm = () => {
     loadQuestionPackages();
     fetchInterviews();
   }, [fetchInterviews]);
+
+  useEffect(() => {
+    if (interviews.length > 0) {
+      interviews.forEach((interview) => fetchVideos(interview._id));
+    }
+  }, [interviews, fetchVideos]);
 
   const handleAddJobPosition = () => {
     setIsPopupOpen(true);
@@ -428,15 +436,6 @@ const JobPositionForm = () => {
 
   const handleDelete = async (id) => {
     await deleteInterview(id);
-  };
-
-  const getTotalQuestionsCount = (interview) => {
-    const extraQuestionsCount = interview.questions?.length || 0;
-    const selectedPackage = questionPackages.find(
-      (pkg) => pkg.id === interview.selectedPackage
-    );
-    const packageQuestionsCount = selectedPackage?.questions.length || 0;
-    return extraQuestionsCount + packageQuestionsCount;
   };
 
   return (
@@ -506,16 +505,16 @@ const JobPositionForm = () => {
                 <div className="text-center border-l border-gray-400">
                   <p className="text-xs text-gray-600 ml-2">TOTAL</p>
                   <p className="text-xl font-semibold">
-                    {getTotalQuestionsCount(interview)}
+                    <p className="text-xl font-semibold">
+                      {interview.totalVideos}
+                    </p>
                   </p>
                 </div>
                 <div className="text-center border-l border-gray-400">
                   <p className="text-xs text-gray-600 ml-2">ON HOLD</p>
-                  <p className="text-xl font-semibold">
-                    {Math.floor(
-                      Math.random() * getTotalQuestionsCount(interview)
-                    )}
-                  </p>
+                  <p className="text-xl font-semibold">{interview.pendingVideos}</p>
+                 
+                  
                 </div>
               </div>
               <div className="flex justify-between mt-4 items-center text-sm text-red-500">

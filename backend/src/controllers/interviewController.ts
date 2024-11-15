@@ -8,6 +8,7 @@ import {
 import { QuestionPackageModel } from "../models/question-package.model";
 import mongoose from "mongoose";
 import InterviewVideosModel from "../models/interviewVideosModel";
+import * as VideoService from "../services/videoServices";
 
 // Create Interview Controller
 export const createInterviewController = async (
@@ -142,6 +143,8 @@ export const deleteInterviewController = async (
       res.status(404).json({ message: "Interview not found" });
       return;
     }
+
+    await VideoService.deleteVideo(id);
 
     res.status(200).json({
       message: "Interview deleted successfully",
