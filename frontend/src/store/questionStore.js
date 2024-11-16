@@ -47,8 +47,10 @@ const useQuestionStore = create((set) => ({
 
   // Add a question to a question package
   addQuestionToPackage: async (packageId, question, time) => {
+    console.log("1");
     set({ loading: true });
     try {
+      console.log("1");
       const response = await axios.post(
         `http://localhost:8000/api/packages/${packageId}/questions`,
         {
@@ -56,6 +58,7 @@ const useQuestionStore = create((set) => ({
           time,
         }
       );
+      console.log("2");
       set((state) => ({
         questionPackages: state.questionPackages.map((pkg) =>
           pkg._id === packageId ? response.data : pkg

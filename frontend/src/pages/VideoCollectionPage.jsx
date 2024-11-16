@@ -4,7 +4,7 @@ import useVideoStore from "../store/useVideoCollectionStore";
 import axios from "axios";
 
 const VideoCollection = () => {
-  const { videos, fetchVideos} = useVideoStore();
+  const { videos, fetchVideos } = useVideoStore();
   const { interviewId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -31,8 +31,6 @@ const VideoCollection = () => {
     setSelectedVideo(null);
     setNote("");
   };
-
-
 
   // Güncel durum ve notu backend'e gönder ve frontend'de güncelle
   const updateStatusInBackend = async (videoId, userId, pass, fail, note) => {
@@ -77,25 +75,37 @@ const VideoCollection = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="relative p-8 min-h-[93vh] max-h-[93vh] rounded-3xl shadow-2xl min-w-[90px] max-w-[1250px] overflow-hidden">
       {videos.length === 0 ? (
         <p className="text-center text-gray-500">No videos found</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video) => (
-            <div key={video._id} className="bg-white shadow-lg rounded-lg p-4">
-              <video
-                src={video.s3Url}
-                className="w-full h-48 rounded-md mb-4"
-              ></video>
-              <h3 className="text-lg font-semibold text-gray-800">
-                {video.user?.name} {video.user?.surname}
-              </h3>
-              <p className={`mt-2 text-green-500 font-semibold ${video.pass ? 'text-green-500' : video.fail ? 'text-red-500' : 'text-orange-500'}`}>
-                {video.pass ? "Pass" : video.fail ? "Fail" : "Pending"}
-              </p>
-            
-              <div className="flex justify-between mt-4">
+            <div
+              key={video._id}
+              className="bg-gradient-to-br from-[#B1D1CB] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative flex flex-col justify-between"
+            >
+              <div>
+                <video
+                  src={video.s3Url}
+                  className="w-full h-48 rounded-md mb-2"
+                ></video>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {video.user?.name} {video.user?.surname}
+                </h3>
+              </div>
+              <div className="mt-4 flex justify-between items-center">
+                <p
+                  className={`font-semibold ${
+                    video.pass
+                      ? "text-green-500"
+                      : video.fail
+                      ? "text-red-500"
+                      : "text-orange-500"
+                  }`}
+                >
+                  {video.pass ? "Pass" : video.fail ? "Fail" : "Pending"}
+                </p>
                 <button
                   onClick={() => handleVideoClick(video)}
                   className="text-blue-500 hover:text-blue-700 font-semibold"
@@ -153,7 +163,7 @@ const VideoCollection = () => {
                   Pass
                 </button>
                 <button
-                  onClick={() => {  
+                  onClick={() => {
                     setFail(true);
                     setPass(false);
                   }}

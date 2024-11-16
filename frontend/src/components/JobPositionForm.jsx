@@ -459,7 +459,7 @@ const JobPositionForm = () => {
         {currentInterviews.map((interview) => (
           <div
             key={interview._id}
-            className="bg-gradient-to-br from-[#5DB0A6] to-[#6CB7AF] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative"
+            className="bg-gradient-to-br from-[#B1D1CB] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative"
           >
             <div className="absolute top-2 left-2">
               <motion.button
@@ -506,10 +506,16 @@ const JobPositionForm = () => {
                 </p>
               </div>
             </div>
-            <div className="flex justify-between mt-4 items-center text-sm text-red-500">
-              <span>{interview.isPublished ? "Published" : "Unpublished"}</span>
+            <div className="flex justify-between mt-4 items-center text-sm">
+              <span
+                className={`${
+                  interview.isPublished ? "text-green-700" : "text-red-700"
+                }`}
+              >
+                {interview.isPublished ? "Published" : "Unpublished"}
+              </span>
               <button
-                className="text-blue-500 hover:underline"
+                className="text-blue-500 hover:text-blue-700"
                 onClick={() =>
                   (window.location.href = `/admin-dashboard/video-collection/${interview._id}`)
                 }

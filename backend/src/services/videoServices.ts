@@ -24,7 +24,6 @@ const s3Client = new S3Client({
 // Interview ID'ye göre tüm videoları getir
 export const fetchVideosByInterviewId = async (interviewId: string) => {
   try {
-    console.log("interviewId: ", interviewId);
     const interviewVideos = await InterviewVideos.findOne({ interviewId });
 
     if (!interviewVideos) {

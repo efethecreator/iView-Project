@@ -14,11 +14,7 @@ const App = () => {
   const [questionPackages, setQuestionPackages] = useState([]);
 
   useEffect(() => {
-    const loadPackages = async () => {
-      const packages = await fetchQuestionPackages();
-      setQuestionPackages(packages);
-    };
-    loadPackages();
+    // Bu useEffect'i App.jsx'ten kaldırdık
   }, [fetchQuestionPackages]);
 
   return (
@@ -28,7 +24,7 @@ const App = () => {
         <Route path="/" element={<AdminLogin />} />
 
         {/* Admin paneli */}
-        <Route path="/admin-dashboard" element={<AdminLayout />}>
+        <Route path="/admin-dashboard" element={<AdminLayout onInit={fetchPackages} />}>
           {/* Soru yönetimi */}
           <Route
             path="questions"
@@ -58,6 +54,15 @@ const App = () => {
       </Routes>
     </Router>
   );
+
+  // Fetch paketleri yükleyen ve state'i güncelleyen fonksiyon
+  function fetchPackages() {
+    const loadPackages = async () => {
+      const packages = await fetchQuestionPackages();
+      setQuestionPackages(packages);
+    };
+    loadPackages();
+  }
 };
 
 export default App;
