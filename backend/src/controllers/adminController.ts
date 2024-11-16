@@ -29,6 +29,17 @@ class AdminController {
       res.status(500).json({ message: 'Bir hata oluştu!' });
     }
   };
+
+  // `const` anahtar kelimesi kaldırıldı
+  static logoutAdmin = (req: Request, res: Response): void => {
+    try {
+      res.clearCookie('token'); // Cookie'deki token'ı sil
+      res.status(200).json({ message: 'Başarıyla çıkış yapıldı.' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Bir hata oluştu!' });
+    }
+  };
 }
 
 export default AdminController;

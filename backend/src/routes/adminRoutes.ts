@@ -6,4 +6,7 @@ const router = express.Router();
 // Giriş Route'u
 router.post('/login', AdminController.loginAdmin);
 
+router.post('/logout', AdminController.logoutAdmin);
+
+
 export default router;

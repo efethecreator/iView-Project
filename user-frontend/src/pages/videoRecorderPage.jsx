@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import UserInformation from "../components/userInformation";
+import UserInformation from "../components/UserInformation";
 import VideoRecorder from "../components/VideoRecorder";
 import useUserStore from "../stores/userStore";
 import useVideoStore from "../stores/videoStore";
@@ -11,14 +11,15 @@ const VideoRecorderPage = () => {
   const userId = useUserStore((state) => state.userId);
   const uploadVideo = useVideoStore((state) => state.uploadVideo);
   const [questions, setQuestions] = useState([]);
-  const [isUploading, setIsUploading] = useState(false); // Yüklenme durumunu izlemek için
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuestions = async (id) => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/interview/${id}/questions`
+          `http://localhost:8000/api/interview/${id}/questions`,
+          { withCredentials: true } // Ensure cookies are sent with the request
         );
         setQuestions(response.data.questions || []);
       } catch (error) {
@@ -26,21 +27,22 @@ const VideoRecorderPage = () => {
       }
     };
 
-    if (interviewId) fetchQuestions(interviewId);
+    if (interviewId) {
+      fetchQuestions(interviewId);
+    }
   }, [interviewId]);
 
-  // Video yüklendiğinde tetiklenecek olan fonksiyon
   const handleUploadVideo = async (videoBlob) => {
-    setIsUploading(true); // Yüklenme başladığında popup açılır
+    setIsUploading(true); // Start the upload indicator
 
     try {
       const response = await uploadVideo(videoBlob, interviewId, userId);
       console.log("Video uploaded successfully:", response);
-      setIsUploading(false); // Yüklenme tamamlandığında popup kapanır
-      navigate("/interview-completed"); // Yüklenme tamamlandıktan sonra yönlendirme yapılır
+      setIsUploading(false); // Stop the upload indicator
+      navigate("/interview-completed"); // Navigate to the completion page
     } catch (error) {
       console.error("Error uploading video:", error);
-      setIsUploading(false); // Hata durumunda popup kapanır
+      setIsUploading(false); // Handle upload error
     }
   };
 
@@ -56,7 +58,7 @@ const VideoRecorderPage = () => {
         />
       </div>
 
-      {/* Yüklenme Popup */}
+      {/* Upload Popup Indicator */}
       {isUploading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">

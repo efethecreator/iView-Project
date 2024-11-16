@@ -2,6 +2,8 @@
 import { create } from "zustand";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+
 const useUserStore = create((set) => ({
   personalInfo: {
     name: "",

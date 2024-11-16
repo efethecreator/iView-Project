@@ -4,7 +4,10 @@ import axios from 'axios';
 const JobPositionList = ({ jobPositions, viewVideos, deleteJobPosition }) => {
   const copyLink = async (title) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/interview/${title}`);
+      // withCredentials: true ile API isteğini güncelliyoruz
+      const response = await axios.get(`http://localhost:8000/api/interview/${title}`, {
+        withCredentials: true // Çerez bilgileri ile istek yapılmasını sağlıyor
+      });
       const interviewLink = response.data.interviewLink;
       const fullLink = `http://localhost:5000/${interviewLink}`; // Pointing to the user frontend
 
@@ -12,6 +15,7 @@ const JobPositionList = ({ jobPositions, viewVideos, deleteJobPosition }) => {
       alert('Interview link copied to clipboard!');
     } catch (error) {
       console.error('Error fetching interview link:', error);
+      alert('Failed to copy the link. Please try again.');
     }
   };
 

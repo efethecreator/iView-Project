@@ -1,11 +1,24 @@
-import { Outlet, useLocation, Link } from "react-router-dom";
-import { useState } from "react";
+import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import logo from "../assets/iviewlogo.png";
+import axios from "axios";
+
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Yönlendirme için kullanacağız
   const isHomePage = location.pathname === "/admin-dashboard";
-  const [activeMenu, setActiveMenu] = useState("questions");
+
+  const handleLogout = async () => {
+    try {
+      // Token'i backend tarafında silmek için logout API çağrısı
+      await axios.post('http://localhost:8000/api/admin/logout', {}, { withCredentials: true });
+
+      // Yönlendirme işlemi
+      navigate("/"); // Login sayfasına yönlendirme
+    } catch (error) {
+      console.error("Logout işlemi sırasında bir hata oluştu", error);
+    }
+  };
 
   return (
     <div className="flex bg-blue min-h-screen">
@@ -40,6 +53,14 @@ const AdminLayout = () => {
             </Link>
           </li>
         </ul>
+
+        {/* Log Out Butonu */}
+        <button
+          onClick={handleLogout}
+          className="mt-auto ml-2 block text-lg font-medium text-black py-2 px-4 rounded-lg hover:bg-[#88d3cf] hover:text-gray-700 hover:underline hover:shadow-lg transition-all duration-300 relative"
+        >
+          Log Out
+        </button>
       </div>
 
       {/* İçerik Alanı */}

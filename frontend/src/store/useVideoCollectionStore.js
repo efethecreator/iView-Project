@@ -10,13 +10,19 @@ const useVideoStore = create((set) => ({
   fetchVideos: async (interviewId) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/videos/${interviewId}`
+        `http://localhost:8000/api/videos/${interviewId}`,
+        {
+          withCredentials: true,
+        }
       );
-
+      console.log(response.data);
       const videoData = await Promise.all(
         response.data.map(async (video) => {
           const userResponse = await axios.get(
-            `http://localhost:8000/api/users/${video.userId}`
+            `http://localhost:8000/api/users/${video.userId}`,
+            {
+              withCredentials: true,
+            }
           );
           return { ...video, user: userResponse.data };
         })
@@ -48,9 +54,13 @@ const useVideoStore = create((set) => ({
     formData.append("interviewId", interviewId);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/videos", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/videos",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       set((state) => ({
         videos: [...state.videos, response.data],
       }));
@@ -65,15 +75,14 @@ const useVideoStore = create((set) => ({
       await axios.delete(`http://localhost:8000/api/videos/${videoId}`, {
         data: { interviewId },
       });
-  
+
       set((state) => ({
         videos: state.videos.filter((video) => video._id !== videoId),
       }));
     } catch (error) {
       console.error("Error deleting video:", error);
     }
-  },   
-
+  },
 }));
 
 export default useVideoStore;

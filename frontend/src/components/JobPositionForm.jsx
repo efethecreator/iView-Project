@@ -4,6 +4,7 @@ import { FaTimes, FaPlus, FaInfoCircle, FaCopy, FaTrash } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import useInterviewStore from "../store/useInterviewStore";
 import useVideoStore from "../store/useVideoCollectionStore";
+import axios from "axios";
 
 const InterviewInfoPopup = ({ interviewId, onClose }) => {
   const { interviewQuestions, fetchInterviewQuestions } = useInterviewStore();
@@ -371,8 +372,10 @@ const JobPositionForm = () => {
   useEffect(() => {
     const loadQuestionPackages = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/packages");
-        const data = await response.json();
+        const response = await axios.get("http://localhost:8000/api/packages", {
+          withCredentials: true,
+        });
+        const data = response.data;
         setQuestionPackages(data);
       } catch (error) {
         console.error("Soru paketleri yüklenirken hata oluştu:", error);
@@ -394,7 +397,6 @@ const JobPositionForm = () => {
     await createInterview(data);
     setIsPopupOpen(false);
     fetchInterviews(); // Yeni mülakat eklendikten sonra listeyi yenileyin
-
   };
 
   // Linki sadece isPublished durumunda kopyalama

@@ -2,9 +2,6 @@
 import { create } from "zustand";
 import axios from "axios";
 
-// API URL
-const API_URL = import.meta.env.BASE_URL;
-
 // Zustand store
 const useInterviewStore = create((set) => ({
   interviews: [],
@@ -17,7 +14,9 @@ const useInterviewStore = create((set) => ({
   fetchInterviews: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get("http://localhost:8000/api/interview/");
+      const response = await axios.get("http://localhost:8000/api/interview/", {
+        withCredentials: true,
+      });
       set({ interviews: response.data, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch interviews", loading: false });
@@ -32,6 +31,9 @@ const useInterviewStore = create((set) => ({
       const response = await axios.post(
         "http://localhost:8000/api/interview/create",
         interviewData,
+        {
+          withCredentials: true,
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -53,7 +55,11 @@ const useInterviewStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/interview/${id}`
+        `http://localhost:8000/api/interview/${id}
+      }`,
+        {
+          withCredentials: true,
+        }
       );
       set({ interview: response.data, loading: false });
     } catch (error) {
@@ -66,7 +72,10 @@ const useInterviewStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/interview/${id}/questions`
+        `http://localhost:8000/api/interview/${id}/questions`,
+        {
+          withCredentials: true,
+        }
       );
       set({ interviewQuestions: response.data.questions, loading: false });
     } catch (error) {
@@ -78,7 +87,9 @@ const useInterviewStore = create((set) => ({
   deleteInterview: async (id) => {
     set({ loading: true });
     try {
-      await axios.delete(`http://localhost:8000/api/interview/delete/${id}`);
+      await axios.delete(`http://localhost:8000/api/interview/delete/${id}`, {
+        withCredentials: true,
+      });
       set((state) => ({
         interviews: state.interviews.filter(
           (interview) => interview._id !== id

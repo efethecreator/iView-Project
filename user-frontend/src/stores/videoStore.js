@@ -1,27 +1,35 @@
 import { create } from "zustand";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+
+const API_BASE_URL = "http://localhost:8000/api";  // Define a constant for base URL
+
 const useVideoStore = create((set) => ({
   videos: [],
   videoUrl: null,
 
-  // Tüm videoları getirme
+  // Fetch all videos
   fetchVideos: async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/videos");
+      const response = await axios.get(`${API_BASE_URL}/videos`, {
+        withCredentials: true  // Ensure cookies are included
+      });
       set({ videos: response.data });
     } catch (error) {
       console.error("Failed to fetch videos:", error.message);
     }
   },
 
+  // Create a user
   createUser: async (personalInfo) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/users",
-        personalInfo
+        `${API_BASE_URL}/users`,
+        personalInfo,
+        { withCredentials: true }
       );
-      set({ userId: response.data.id }); // Dönen userId'yi kaydedin
+      set({ userId: response.data.id });  // Store returned userId
       return response.data.id;
     } catch (error) {
       console.error("User creation failed:", error.message);
@@ -29,22 +37,23 @@ const useVideoStore = create((set) => ({
     }
   },
 
-  // Mülakat süresinin dolup dolmadığını kontrol etme
+  // Check if the interview has expired
   checkInterviewStatus: async (interviewId) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/interview/${interviewId}`
+        `${API_BASE_URL}/interview/${interviewId}`,
+        { withCredentials: true }
       );
       const { expireDate } = response.data;
-      const isExpired = new Date(expireDate) < new Date(); // Süresi dolmuşsa true döner
-      return !isExpired; // Süresi dolmamışsa true, dolmuşsa false döner
+      const isExpired = new Date(expireDate) < new Date();
+      return !isExpired;  // Return true if not expired
     } catch (error) {
       console.error("Failed to check interview status:", error.message);
-      return false; // Hata durumunda süresi dolmuş olarak kabul et
+      return false;  // Assume expired on error
     }
   },
 
-  // Video yükleme
+  // Upload a video
   uploadVideo: async (file, interviewId, userId) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -53,12 +62,11 @@ const useVideoStore = create((set) => ({
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/videos",
+        `${API_BASE_URL}/videos`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true
         }
       );
       set((state) => ({ videos: [...state.videos, response.data] }));
@@ -68,10 +76,12 @@ const useVideoStore = create((set) => ({
     }
   },
 
-  // Video silme
+  // Delete a video
   deleteVideo: async (id) => {
     try {
-      await axios.delete(`/api/videos/${id}`);
+      await axios.delete(`${API_BASE_URL}/videos/${id}`, {
+        withCredentials: true
+      });
       set((state) => ({
         videos: state.videos.filter((video) => video._id !== id),
       }));

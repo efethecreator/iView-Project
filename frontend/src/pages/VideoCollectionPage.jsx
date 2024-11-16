@@ -4,7 +4,7 @@ import useVideoStore from "../store/useVideoCollectionStore";
 import axios from "axios";
 
 const VideoCollection = () => {
-  const { videos, fetchVideos, deleteVideo } = useVideoStore();
+  const { videos, fetchVideos} = useVideoStore();
   const { interviewId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -32,18 +32,9 @@ const VideoCollection = () => {
     setNote("");
   };
 
-  const handleDelete = async (videoId) => {
-    try {
-      await deleteVideo(videoId, interviewId);
-      alert("Video successfully deleted.");
-    } catch (error) {
-      console.error("Failed to delete video:", error);
-      alert("Failed to delete video.");
-    }
-  };
 
 
-  // Güncel durum ve notu backend’e gönder ve frontend'de güncelle
+  // Güncel durum ve notu backend'e gönder ve frontend'de güncelle
   const updateStatusInBackend = async (videoId, userId, pass, fail, note) => {
     console.log({ videoId, userId, pass, fail, note });
     console.log(videos);
@@ -57,7 +48,7 @@ const VideoCollection = () => {
         note,
       });
 
-      // Backend güncellenirken state’i de güncelle
+      // Backend güncellenirken state'i de güncelle
       setStatusData((state) => ({
         ...state,
         [videoId]: response.data,
@@ -95,7 +86,6 @@ const VideoCollection = () => {
             <div key={video._id} className="bg-white shadow-lg rounded-lg p-4">
               <video
                 src={video.s3Url}
-                controls
                 className="w-full h-48 rounded-md mb-4"
               ></video>
               <h3 className="text-lg font-semibold text-gray-800">
@@ -106,12 +96,6 @@ const VideoCollection = () => {
               </p>
             
               <div className="flex justify-between mt-4">
-                <button
-                  onClick={() => handleDelete(video._id)}
-                  className="text-red-500 hover:text-red-700 font-semibold"
-                >
-                  Delete
-                </button>
                 <button
                   onClick={() => handleVideoClick(video)}
                   className="text-blue-500 hover:text-blue-700 font-semibold"

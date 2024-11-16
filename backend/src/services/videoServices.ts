@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
-  ListObjectsV2Command
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import InterviewVideos from "../models/interviewVideosModel";
@@ -24,9 +24,10 @@ const s3Client = new S3Client({
 // Interview ID'ye göre tüm videoları getir
 export const fetchVideosByInterviewId = async (interviewId: string) => {
   try {
+    console.log("interviewId: ", interviewId);
     const interviewVideos = await InterviewVideos.findOne({ interviewId });
 
-    if (!interviewVideos || interviewVideos.videos.length === 0) {
+    if (!interviewVideos) {
       throw new Error("Videolar bulunamadı");
     }
 
@@ -94,7 +95,7 @@ export const uploadVideoToAPI = async (
 ) => {
   try {
     const randomFileName = `${Date.now()}.mp4`;
-    const fileKey = `${interviewId}/${randomFileName}`
+    const fileKey = `${interviewId}/${randomFileName}`;
 
     const command = new PutObjectCommand({
       Bucket: process.env.VIDEO_API_BUCKET,
@@ -171,7 +172,9 @@ export const deleteVideo = async (interviewId: string) => {
 
     await Promise.all(deletePromises);
 
-    console.log(`All videos under interview ID ${interviewId} deleted successfully.`);
+    console.log(
+      `All videos under interview ID ${interviewId} deleted successfully.`
+    );
   } catch (error) {
     console.error("Error deleting videos from S3:", error);
     throw error;
