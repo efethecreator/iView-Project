@@ -365,8 +365,9 @@ const JobPositionForm = () => {
   const [questionPackages, setQuestionPackages] = useState([]);
   const [showInfo, setShowInfo] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const { videos, fetchVideos } = useVideoStore();
+  const { fetchVideos } = useVideoStore();
   const interviewsPerPage = 15;
+  
 
   // Soru paketlerini yükleme ve mülakatları güncelleme
   useEffect(() => {

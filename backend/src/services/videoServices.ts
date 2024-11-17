@@ -74,11 +74,21 @@ export const updateInterviewVideos = async (
       throw new Error("Video not found for specified userId and videoId");
     }
 
+    const wasPending = !video.pass && !video.fail; // Video eskiden 'pending' mi?
     video.pass = pass;
     video.fail = fail;
     video.note = note;
 
     await interviewVideos.save();
+
+    if (wasPending && (pass || fail)) {
+      await InterviewModel.findByIdAndUpdate(
+        interviewId,
+        { $inc: { pendingVideos: -1 } }, // pendingVideos'u 1 azalt
+        { new: true }
+      );
+    }
+    
   } catch (error) {
     throw new Error(
       `Failed to update interview videos: ${(error as Error).message}`

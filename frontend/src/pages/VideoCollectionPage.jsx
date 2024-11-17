@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useVideoStore from "../store/useVideoCollectionStore";
 import axios from "axios";
+import myImage from '../assets/intw1.png';
 
 const VideoCollection = () => {
   const { videos, fetchVideos } = useVideoStore();
@@ -86,10 +87,10 @@ const VideoCollection = () => {
               className="bg-gradient-to-br from-[#B1D1CB] to-transparent backdrop-blur-2xl rounded-xl p-4 shadow-xl relative flex flex-col justify-between"
             >
               <div>
-                <video
-                  src={video.s3Url}
-                  className="w-full h-48 rounded-md mb-2"
-                ></video>
+              <img
+              src={myImage}
+                className="w-full h-48 rounded-md mb-4 object-cover"
+                />
                 <h3 className="text-lg font-semibold text-gray-800">
                   {video.user?.name} {video.user?.surname}
                 </h3>
