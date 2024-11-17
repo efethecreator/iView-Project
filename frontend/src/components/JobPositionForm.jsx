@@ -17,7 +17,7 @@ const InterviewInfoPopup = ({ interviewId, onClose }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <div className="bg-white w-11/12 md:w-1/2 lg:w-1/3 p-6 rounded-lg shadow-lg relative">
+      <div className="bg-white w-11/12 md:w-1/2 lg:w-1/3 p-6 rounded-lg shadow-lg relative max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold text-teal-700 mb-4">
           Package Questions
         </h2>
@@ -491,9 +491,20 @@ const JobPositionForm = () => {
                 <FaTrash className="text-xl" />
               </motion.button>
             </div>
-            <h3 className="text-black font-semibold mb-2 mt-5 text-2xl">
-              {interview.title}
-            </h3>
+            <div className="relative max-w-[300px] group">
+  {/* Kartın ana bölümü */}
+  <div
+    className="text-black font-semibold mb-2 mt-5 text-2xl truncate overflow-hidden"
+    title={interview.title} // Bu özellik, yazıyı tarayıcıda da gösterir.
+  >
+    {interview.title}
+  </div>
+
+  {/* Tooltip */}
+  <div className="absolute hidden group-hover:block bg-gray-800 text-white text-sm p-2 rounded-lg shadow-lg top-full mt-2 left-1/2 transform -translate-x-1/2 z-10">
+    {interview.title}
+  </div>
+</div>
             <p className="text-sm mb-2">Candidates:</p>
             <div className="bg-gray-300 rounded-lg p-2 flex justify-around mb-4">
               <div className="text-center border-l border-gray-400">

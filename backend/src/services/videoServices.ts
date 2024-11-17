@@ -75,26 +75,41 @@ export const updateInterviewVideos = async (
     }
 
     const wasPending = !video.pass && !video.fail; // Video eskiden 'pending' mi?
+    const isNowPending = !pass && !fail; // Video şimdi 'pending' mi olacak?
+
+    // Video durumunu güncelle
     video.pass = pass;
     video.fail = fail;
     video.note = note;
 
     await interviewVideos.save();
 
-    if (wasPending && (pass || fail)) {
+    if (wasPending && !isNowPending) {
+      // Eğer video eskiden 'pending' ise ve artık değilse, pendingVideos'u azalt
       await InterviewModel.findByIdAndUpdate(
         interviewId,
-        { $inc: { pendingVideos: -1 } }, // pendingVideos'u 1 azalt
+        {
+          $inc: { pendingVideos: -1 },
+        },
+        { new: true }
+      );
+    } else if (!wasPending && isNowPending) {
+      // Eğer video eskiden 'pending' değilse ve şimdi 'pending' olduysa, pendingVideos'u artır
+      await InterviewModel.findByIdAndUpdate(
+        interviewId,
+        {
+          $inc: { pendingVideos: 1 },
+        },
         { new: true }
       );
     }
-    
   } catch (error) {
     throw new Error(
       `Failed to update interview videos: ${(error as Error).message}`
     );
   }
 };
+
 
 // Tek bir video yükle
 export const uploadVideoToAPI = async (

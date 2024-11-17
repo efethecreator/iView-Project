@@ -122,7 +122,7 @@ const VideoCollection = () => {
       {/* Modal Component */}
       {isModalOpen && selectedVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">
               {selectedVideo.user?.name} {selectedVideo.user?.surname} -
               Interview
@@ -153,13 +153,13 @@ const VideoCollection = () => {
 
             <div className="mb-4">
               <label className="block text-lg font-semibold">Status</label>
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => {
                     setFail(false);
                     setPass(true);
                   }}
-                  className="text-white bg-green-500 px-4 py-2 rounded"
+                  className="px-6 py-2 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 rounded-lg shadow-md transition-all"
                 >
                   Pass
                 </button>
@@ -168,7 +168,7 @@ const VideoCollection = () => {
                     setFail(true);
                     setPass(false);
                   }}
-                  className="text-white bg-red-500 px-4 py-2 rounded"
+                  className="px-6 py-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 rounded-lg shadow-md transition-all"
                 >
                   Fail
                 </button>
@@ -177,7 +177,7 @@ const VideoCollection = () => {
                     setFail(false);
                     setPass(false);
                   }}
-                  className="text-white bg-orange-500 px-4 py-2 rounded"
+                  className="px-6 py-2 text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 rounded-lg shadow-md transition-all"
                 >
                   Pending
                 </button>
@@ -186,20 +186,20 @@ const VideoCollection = () => {
 
             {/* Note Section */}
             <div className="mb-4">
-              <label className="block text-lg font-semibold">Note</label>
+              <label className="block text-lg font-semibold mb-2 text-gray-700">Note</label>
               <textarea
                 value={note}
                 val={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2 mt-2"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-200 shadow-sm"
                 rows="4"
               ></textarea>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end">
               <button
                 onClick={handleSaveAndClose}
-                className="text-white bg-green-700 px-4 py-2 rounded mt-4"
+                className="px-6 py-3 rounded-lg bg-gradient-to-r from-teal-500 to-teal-700 text-white font-semibold shadow-md hover:from-teal-600 hover:to-teal-800 focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all duration-200"
               >
                 Save and Close
               </button>
