@@ -3,10 +3,8 @@ import { createInterviewController, getInterviewController, getInterviewsControl
 
 const router = Router();
 
-// Interview sorularını getirmek için yeni GET route
-router.get('/:id/questions', GetInterviewQuestions); // Interview ID ile ilgili soruları getirir
 
-// Mevcut diğer rotalar
+router.get('/:id/questions', GetInterviewQuestions); 
 router.post('/create', createInterviewController);
 router.get('/:id', getInterviewController);
 router.get('/', getInterviewsController);

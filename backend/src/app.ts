@@ -30,7 +30,6 @@ mongoose
   .then(() => console.log("MongoDB bağlantısı başarıyla sağlandı"))
   .catch((err) => console.error("MongoDB bağlantı hatası:", err));
 
-// Yalnızca yetkilendirme gerektiren yollarda authMiddleware kullan
 app.use("/api/admin", adminRoutes);
 
 app.use(cookieParser());

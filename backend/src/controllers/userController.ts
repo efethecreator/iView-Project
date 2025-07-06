@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { createUser } from "../services/userService";
-import { IUserInput } from "../models/userModel"; // Import new interface
-import { findUserById } from "../services/userService"; // Import findUserById function
+import { IUserInput } from "../models/userModel"; 
+import { findUserById } from "../services/userService"; 
 
 export const createUserController = async (
   req: Request,
@@ -10,7 +10,7 @@ export const createUserController = async (
   try {
     const { name, surname, email, phone, videoUrl, status, note } = req.body;
 
-    // Constructing user data with IUserInput type
+
     const userData: IUserInput = {
       name,
       surname,
@@ -21,7 +21,6 @@ export const createUserController = async (
       note,
     };
 
-    // Create user by calling service
     const newUser = await createUser(userData);
 
     res.status(201).json({
@@ -34,7 +33,6 @@ export const createUserController = async (
   }
 };
 
-// Yeni kullanıcıyı ID'ye göre getiren kontrolcü
 export const getUserByIdController = async (
   req: Request,
   res: Response

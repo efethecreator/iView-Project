@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import * as VideoService from "../services/videoServices";
 
-// Belirli bir ID ile video al
 export const getVideoById = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { interviewId } = req.params; // interviewId parametresi eksik olabilir, kontrol edin
+    const { interviewId } = req.params; 
     if (!interviewId) {
       res.status(400).json({ message: "Eksik interviewId." });
       return;
@@ -49,13 +48,11 @@ export const updateInterviewVideos = async (
   }
 };
 
-// Video yükle
 export const uploadVideo = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Dosyanın yüklendiğini doğrula
     if (!req.file) {
       res.status(400).json({ message: "No video file uploaded." });
       return;
@@ -63,7 +60,6 @@ export const uploadVideo = async (
 
     const { interviewId, userId } = req.body;
 
-    // interviewId ve userId'nin eksik olmadığını doğrula
     if (!interviewId) {
       res.status(400).json({ message: "Missing interviewId." });
       return;
@@ -73,14 +69,12 @@ export const uploadVideo = async (
       return;
     }
 
-    // Video upload ve veritabanına ekleme işlemi
     const responseData = await VideoService.uploadVideoToAPI(
       req.file,
       userId,
       interviewId
     );
 
-    // Güncellenmiş dökümanı döndür
     res.status(200).json(responseData.updatedInterview);
   } catch (error: unknown) {
     console.error("Error during video upload:", (error as Error).message);
@@ -90,7 +84,6 @@ export const uploadVideo = async (
   }
 };
 
-// Video sil
 export const deleteVideo = async (
   req: Request,
   res: Response
@@ -103,7 +96,6 @@ export const deleteVideo = async (
       return;
     }
 
-    // Tüm videoları sil
     await VideoService.deleteVideo(interviewId);
 
     res.status(204).send();

@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
-// Interface for Interview schema
 export interface IInterviewVideos extends Document {
   interviewId: string;
   videos: IVideos[];
@@ -44,7 +43,6 @@ const videosSchema = new Schema<IVideos>({
 
 });
 
-// Mongoose schema for Interview
 const InterviewVideosSchema: Schema = new Schema<IInterviewVideos>(
   {
     interviewId: {
@@ -54,11 +52,11 @@ const InterviewVideosSchema: Schema = new Schema<IInterviewVideos>(
     videos: { type: [videosSchema], required: true, default: [] },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, 
   }
 );
 
-// Mongoose model for Interview
+
 const InterviewVideos = mongoose.model<IInterviewVideos>(
   "InterviewVideos",
   InterviewVideosSchema

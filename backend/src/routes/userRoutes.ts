@@ -3,9 +3,8 @@ import { createUserController , getUserByIdController } from '../controllers/use
 
 const router = Router();
 
-// Define route for creating a user
-router.post('/create', createUserController);
 
+router.post('/create', createUserController);
 router.get('/:userId', getUserByIdController);
 
 export default router;

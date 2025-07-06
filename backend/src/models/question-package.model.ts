@@ -1,25 +1,24 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-// Interface for a question
+
 export interface Question {
-    _id: Types.ObjectId; // `_id`'yi Types.ObjectId olarak tanımlayın
+    _id: Types.ObjectId; 
     question: string;
     time: number;
 }
 
-// Interface for a question package
 export interface QuestionPackage extends Document {
     title: string;
     questionCount: number;
     questions: Question[];
 }
 
-// Mongoose schema for a question
+
 const QuestionSchema: Schema = new Schema<Question>({
     _id: {
-        type: Schema.Types.ObjectId, // `_id` alanında Schema.Types.ObjectId kullanın
+        type: Schema.Types.ObjectId, 
         required: true,
-        default: () => new Types.ObjectId(), // Yeni bir ObjectId otomatik olarak oluşturulacak
+        default: () => new Types.ObjectId(),
     },
     question: {
         type: String,
@@ -31,7 +30,7 @@ const QuestionSchema: Schema = new Schema<Question>({
     },
 });
 
-// Mongoose schema for a question package
+
 const QuestionPackageSchema: Schema = new Schema<QuestionPackage>({
     title: {
         type: String,
@@ -40,7 +39,7 @@ const QuestionPackageSchema: Schema = new Schema<QuestionPackage>({
     questionCount: {
         type: Number,
         required: true,
-        default: 0, // This will be updated dynamically when questions are added
+        default: 0, 
     },
     questions: {
         type: [QuestionSchema],

@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 import InterviewVideosModel from "../models/interviewVideosModel";
 import * as VideoService from "../services/videoServices";
 
-// Create Interview Controller
+
 export const createInterviewController = async (
   req: Request,
   res: Response
@@ -27,7 +27,7 @@ export const createInterviewController = async (
 
     const interviewData = {
       title,
-      packages, // Yalnızca ObjectId'leri alıyoruz
+      packages, 
       questions,
       expireDate,
       canSkip,
@@ -59,7 +59,7 @@ export const createInterviewController = async (
 export const GetInterviewQuestions = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const interview = await getInterviewById(id); // Interview ID ile sorgu
+    const interview = await getInterviewById(id); 
 
     if (!interview) {
       res.status(404).json({ message: "Interview not found" });
@@ -67,12 +67,12 @@ export const GetInterviewQuestions = async (req: Request, res: Response) => {
     }
     console.log(interview.packages);
 
-    // Tüm question package'leri al
+    
     const questions = await Promise.all(
       interview.packages.map(async (pkgId) => {
         const questionPackage = await QuestionPackageModel.findById(
           pkgId.packageId
-        ); // Package ID ile sorgu
+        ); 
 
         return questionPackage?.questions.map((question) => ({
           question: question.question,
@@ -82,8 +82,8 @@ export const GetInterviewQuestions = async (req: Request, res: Response) => {
       })
     );
 
-    const flattenedQuestions = questions.flat(); // Paketleri düzleştir
-    const extraQuestions = interview.questions || []; // Interview ile gelen ekstra sorular
+    const flattenedQuestions = questions.flat(); 
+    const extraQuestions = interview.questions || []; 
     const allQuestions = [...flattenedQuestions, ...extraQuestions];
 
     res
@@ -95,7 +95,7 @@ export const GetInterviewQuestions = async (req: Request, res: Response) => {
   }
 };
 
-// Get a single interview by ID
+
 export const getInterviewController = async (
   req: Request,
   res: Response
@@ -116,7 +116,7 @@ export const getInterviewController = async (
   }
 };
 
-// Get all interviews
+
 export const getInterviewsController = async (
   _req: Request,
   res: Response
@@ -130,7 +130,7 @@ export const getInterviewsController = async (
   }
 };
 
-// Delete a single interview by ID
+
 export const deleteInterviewController = async (
   req: Request,
   res: Response

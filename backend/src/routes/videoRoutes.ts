@@ -7,13 +7,13 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-// GET: Interview ID'ye göre tüm videoları al
+
 router.get("/:interviewId", getVideoById);
 
-// POST: Video yükle
+
 router.post("/", upload.single("file"), uploadVideo);
 
-// DELETE: Video sil
+
 router.delete("/:id", deleteVideo);
 
 router.put("/", updateInterviewVideos)

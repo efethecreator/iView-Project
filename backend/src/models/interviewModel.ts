@@ -6,18 +6,17 @@ interface Question {
   time: number;
 }
 
-// Interface for Interview schema
 export interface IInterview extends Document {
   title: string;
-  packages: packages[]; // Referencing QuestionPackage
-  questions: Question[]; // Assuming questions are strings
+  packages: packages[]; 
+  questions: Question[]; 
   expireDate: Date;
   canSkip: boolean;
   totalVideos: number;
   pendingVideos: number;
   showAtOnce: boolean;
-  interviewLink?: string; // Optional field
-  users: Types.ObjectId[]; // Referencing Users
+  interviewLink?: string; 
+  users: Types.ObjectId[]; 
 }
 
 interface packages extends Document {
@@ -31,7 +30,6 @@ const packagesSchema = new Schema<packages>({
   },
 });
 
-// Mongoose schema for Interview
 const InterviewSchema: Schema = new Schema<IInterview>(
   {
     title: {
@@ -82,23 +80,22 @@ const InterviewSchema: Schema = new Schema<IInterview>(
     },
     interviewLink: {
       type: String,
-      default: () => uuidv4(), // Automatically generates a UUID for the interview link
+      default: () => uuidv4(), 
     },
     users: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User", // Reference to User model
+        ref: "User", 
         required: false,
-        default: [], // Initially empty array for users
+        default: [],
       },
     ],
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, 
   }
 );
 
-// Mongoose model for Interview
 const Interview = mongoose.model<IInterview>("Interview", InterviewSchema);
 
 export default Interview;
